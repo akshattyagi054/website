@@ -435,5 +435,17 @@ function placeOrder(e){
 function closeSuccess(){document.getElementById("successModal").classList.add("hidden");document.getElementById("menu").scrollIntoView({behavior:"smooth"});}
 renderAudTabs();renderCategories();renderMenu();renderCart();updateCartCount();
 </script>
+
+<style>
+@media (max-width:640px){
+  header .max-w-7xl{padding-left:8px!important;padding-right:8px!important;}
+  header .max-w-7xl>div{width:100%!important;min-width:0!important;gap:6px!important;}
+  header button:first-child{min-width:0!important;flex:1 1 auto!important;max-width:calc(100% - 78px)!important;gap:6px!important;}
+  header button:first-child img{width:38px!important;height:38px!important;}
+  header button:first-child span{font-size:15px!important;line-height:1.1!important;white-space:normal!important;text-align:left!important;}
+  header .ml-auto{margin-left:auto!important;transform:none!important;flex:0 0 auto!important;}
+  header .ml-auto button{padding:8px 9px!important;min-width:64px!important;font-size:13px!important;}
+}
+</style>
 </body>
 </html>
