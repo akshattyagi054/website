@@ -198,7 +198,7 @@ img, video, iframe{
 
 <footer class="bg-white border-t border-gray-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-4 justify-between text-sm text-gray-500">
-    <span>© 2026 Vishal Tiffin Service Rugby. All rights reserved.</span><span>£1.50 delivery on orders £20 or less · FREE above £20 · Order: 07733 838621</span>
+    <span>© 2026 Vishal Tiffin Service Rugby. All rights reserved.</span><span>Open every day · Kitchen: 9:00 AM – 10:30 PM · £1.50 delivery on orders £20 or less · FREE above £20 · Order: 07733 838621</span>
   </div>
 </footer>
 
@@ -288,7 +288,7 @@ const IMG={
   vegChowmein:"https://imgs.search.brave.com/PJ99f-pY2kyZZIrsecXdd1LtthyuXm9S2KPf0MMjYW0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zaXho/dW5ncnlmZWV0LmNv/bS93cC1jb250ZW50/L3VwbG9hZHMvMjAy/My8wNS9WZWdldGFi/bGUtQ2hvdy1NZWlu/LTUuanBn",
   indianChowmein:"https://imgs.search.brave.com/ZCu8HfTu9AOt6lC350w8ayn-EcVQlRY-I_ACxnH4Y74/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9jaGlu/ZXNlLWluZGlhbi12/ZWctbm9vZGVscy1j/aG93bWVpbi1vbmlv/bi13aGl0ZS1iYWNr/Z3JvdW5kLXZlZy1u/b29kZWxzLWNob3dt/ZWluLW9uaW9uLTQz/NjM4NTA0Ni5qcGc",
   friedRice:"https://images.unsplash.com/photo-1512058564366-18510be2db19?w=900&q=85&fit=crop&auto=format",
-  butterRoti:"https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics_v2/medium/butter_roti.jpg",
+  butterRoti:"https://imgs.search.brave.com/yL3JQD0-EEXELN7KZwHloDbmdEFBy6U8GxhKiZr2jOY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4y/LmNsZXZ1cC5pbi8z/NjA3MDQvdGF3YWJ1/dHRlcnJvdGktMTc0/NTIyMDEzNDg1NC5w/bmc_d2lkdGg9NjAw/JmZvcm1hdD13ZWJw",
   garlicParantha:"https://b.zmtcdn.com/data/dish_photos/44f/9dd09f20891e80e46438019d09e7e44f.jpeg",
   tea:"https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=900&q=85&fit=crop&auto=format",
   coffee:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=85&fit=crop&auto=format",
@@ -309,7 +309,9 @@ const IMG={
   mangoShake:"https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics_v2/medium/mango_milkshake.jpg",
   oreoShake:"https://www.meetakafeh.in/_next/image?q=75&url=https%3A%2F%2Fik.imagekit.io%2Fmeetakafeh%2Ffood-items%2Fmilkshake%2520and%2520trance%2Foreo%2520milk%2520shake%2520nice%2520mockup%2520to%2520put%2520on%2520website%2520in%2520menu.jpg&w=2048",
   pavBhaji:"https://www.holidify.com/images/cmsuploads/compressed/IndianStreetFood_20190103000803.jpg",
-  pakoraCurry:"https://images.slurrp.com/prod/recipe_images/transcribe/nan/Kadhi-pakora.webp"
+  pakoraCurry:"https://images.slurrp.com/prod/recipe_images/transcribe/nan/Kadhi-pakora.webp",
+  plainParatha:"https://images.deliveryhero.io/image/fd-pk/Products/97816195.jpg?width=%25s",
+  choleKulche:"https://b.zmtcdn.com/data/dish_photos/d6a/d237c6c02cc0dc8cda1a14a44b993d6a.jpeg"
 };
 
 const WHATSAPP_NUMBER="447733838621";
@@ -334,6 +336,7 @@ const MENU=[
   {id:42,cat:"Only Curries",name:"Dal Tadka",desc:"Yellow dal tempered with aromatic spices.",price:3,img:IMG.dalTadka,veg:true,aud:"adult"},
   {id:43,cat:"Only Curries",name:"Paneer Bhurji",desc:"Crumbled paneer cooked with onion, tomato and spices.",price:6,img:IMG.paneerBhurji,veg:true,aud:"adult"},
 
+  {id:65,cat:"Prantha & Raita",name:"Plain Paratha",desc:"Plain paratha cooked on the tawa with oil — no butter.",price:1,img:IMG.plainParatha,veg:true,aud:"adult"},
   {id:15,cat:"Prantha & Raita",name:"Aloo Prantha",desc:"Stuffed potato prantha.",price:2,img:IMG.alooParatha,veg:true,aud:"adult"},
   {id:16,cat:"Prantha & Raita",name:"Pyaj Prantha",desc:"Onion stuffed prantha.",price:2,img:IMG.pyajParatha,veg:true,aud:"adult"},
   {id:17,cat:"Prantha & Raita",name:"Paneer Prantha",desc:"Paneer stuffed prantha.",price:3,img:IMG.paneerParatha,veg:true,aud:"adult"},
@@ -381,6 +384,7 @@ const MENU=[
 
   {id:63,cat:"Indian Snacks",name:"Pav Bhaji",desc:"Spiced vegetable bhaji served with buttered pav.",price:6,img:IMG.pavBhaji,veg:true,aud:"adult"},
   {id:64,cat:"Only Curries",name:"Pakora Curry",desc:"Kadhi-style curry with crispy pakoras.",price:4,img:IMG.pakoraCurry,veg:true,aud:"adult"},
+  {id:66,cat:"Indian Snacks",name:"Punjabi Chole Kulche",desc:"Punjabi-style chole served with 2 kulche.",price:5,img:IMG.choleKulche,veg:true,aud:"adult"},
 
   {id:33,cat:"Noodles",name:"Hakka Noodles",desc:"Hakka noodles.",price:4,img:IMG.hakkaNoodles,veg:true,popular:true,aud:"kids"},
   {id:34,cat:"Noodles",name:"Chilli Garlic Noodles",desc:"Chilli garlic noodles.",price:4,img:IMG.chilliGarlicNoodles,veg:true,aud:"kids"},
