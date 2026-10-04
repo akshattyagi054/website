@@ -112,6 +112,135 @@ img, video, iframe{
 <style id="product-image-top-fix">
 .img-wrap img, #cartItems img{object-position:center 42% !important;}
 </style>
+
+<style id="mobile-premium-polish">
+.category-card{min-height:108px}
+.quick-picks-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.quick-pick-card img{width:100%;height:120px;object-fit:cover;background:#f3f4f6}
+@media (max-width:768px){
+  .hero > div{padding-top:34px!important;padding-bottom:38px!important}
+  .hero h1{font-size:2.65rem!important;line-height:1!important}
+  .hero p{font-size:15px!important;line-height:1.6!important}
+  .hero .inline-flex{font-size:11px!important;line-height:1.35!important;padding:9px 12px!important}
+  .hero a,.hero button{width:100%;justify-content:center;text-align:center;padding:13px 18px!important}
+  .hero .mt-9{margin-top:20px!important;gap:10px!important}
+  #menu{padding-top:38px!important;padding-bottom:56px!important}
+  #audTabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px!important;margin-top:20px!important}
+  #audTabs button{padding:11px 5px!important;border-radius:14px!important;font-size:10px!important;gap:3px!important;justify-content:center!important}
+  #audTabs button span{font-size:16px!important}
+  #categories{gap:8px!important;padding-top:14px!important;padding-bottom:18px!important}
+  .category-card{min-height:100px!important;padding:12px 6px!important;border-radius:16px!important}
+  .category-card span{font-size:22px!important}
+  .category-card small{font-size:9px!important;line-height:1.15!important}
+  #menuGrid{gap:14px!important}
+  #menuGrid article{border-radius:22px!important}
+  #menuGrid .img-wrap{height:205px!important}
+  #menuGrid article .p-5{padding:15px!important}
+  #menuGrid h3{font-size:18px!important}
+  #menuGrid .card button{padding:12px!important}
+  .quick-picks-grid{display:flex!important;overflow-x:auto!important;gap:10px!important;padding-bottom:5px!important;scroll-snap-type:x mandatory!important;-webkit-overflow-scrolling:touch}
+  .quick-pick-card{min-width:155px!important;width:155px!important;scroll-snap-align:start!important}
+  .quick-pick-card img{height:105px!important}
+  #audBanner{margin-bottom:18px!important;padding:14px!important;border-radius:20px!important}
+  #audBanner .text-5xl{font-size:32px!important}
+  #search{padding-top:12px!important;padding-bottom:12px!important}
+}
+</style>
+<style id="premium-finishing-pass">
+/* Premium finishing pass */
+.quick-pick-card{position:relative;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;will-change:transform}
+.quick-pick-card:hover{transform:translateY(-5px);box-shadow:0 16px 32px rgba(17,24,39,.12);border-color:#fecaca}
+.quick-pick-card.is-selected{transform:translateY(-4px);border-color:#ef4444;box-shadow:0 16px 32px rgba(220,38,38,.14)}
+.quick-pick-card img{transition:transform .45s ease}.quick-pick-card:hover img,.quick-pick-card.is-selected img{transform:scale(1.045)}
+.quick-popular-badge{position:absolute;top:10px;left:10px;padding:5px 8px;border-radius:999px;background:rgba(17,24,39,.88);color:#fff;font:800 9px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;backdrop-filter:blur(6px)}
+.quick-add-panel{max-height:0;overflow:hidden;opacity:0;padding:0 12px;transition:max-height .25s ease,opacity .2s ease,padding .25s ease}
+.quick-pick-card.is-selected .quick-add-panel{max-height:58px;opacity:1;padding:5px 12px 12px}
+.quick-add-btn{width:100%;padding:10px 12px;border:0;border-radius:12px;background:#dc2626;color:#fff;font:800 12px/1 Inter,system-ui,sans-serif;box-shadow:0 6px 16px rgba(220,38,38,.22);transition:transform .16s ease,background .16s ease}
+.quick-add-btn:active{transform:scale(.97)}.quick-add-btn.added{background:#16a34a}
+.added-pop{animation:addedPop .5s ease}.cart-bounce{animation:cartBounce .5s ease}
+@keyframes addedPop{0%{transform:scale(1)}45%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes cartBounce{0%{transform:scale(1)}35%{transform:scale(1.08)}65%{transform:scale(.97)}100%{transform:scale(1)}}
+.category-card:active,#menuGrid article:active{transform:scale(.985)}
+#mobileCartButton{transition:transform .18s ease,box-shadow .18s ease!important}
+#mobileCartButton:hover{box-shadow:0 8px 24px rgba(220,38,38,.35)!important}
+@media (max-width:768px){
+ .quick-pick-card{min-width:168px!important;width:168px!important;border-radius:18px!important}
+ .quick-pick-card img{height:108px!important}
+ .quick-add-panel{padding-left:10px;padding-right:10px}
+ .quick-pick-card.is-selected .quick-add-panel{padding-bottom:10px}
+ #mobileCartButton{width:128px!important;min-width:128px!important;height:48px!important;font-size:13px!important;box-shadow:0 7px 22px rgba(220,38,38,.32)!important}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
+<style id="premium-cart-and-banner-polish">
+/* Premium cart + feedback positioning */
+#toast{bottom:92px!important;bottom:calc(92px + env(safe-area-inset-bottom))!important;z-index:2147483646!important;
+  background:rgba(17,24,39,.96)!important;backdrop-filter:blur(12px)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:0 14px 35px rgba(0,0,0,.28)!important;
+  animation:toastEnter .42s cubic-bezier(.2,.9,.2,1) both!important;}
+#toast::before{content:"✓";display:inline-grid;place-items:center;width:20px;height:20px;margin-right:7px;border-radius:50%;background:#22c55e;color:white;font-size:12px;font-weight:900;vertical-align:-2px;}
+@keyframes toastEnter{0%{opacity:0;transform:translate(-50%,16px) scale(.9)}55%{opacity:1;transform:translate(-50%,-3px) scale(1.03)}100%{opacity:1;transform:translate(-50%,0) scale(1)}}
+#mobileCartButton,#mainCartButton{overflow:visible!important;isolation:isolate;}
+#mobileCartButton>span,#mainCartButton>span{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;line-height:1!important;}
+#mobileCartButton>span:first-child,#mainCartButton>span:first-child{font-size:20px!important;width:24px!important;height:24px!important;transform-origin:center!important;}
+#mobileCartCount,#cartCount{flex:0 0 24px!important;width:24px!important;min-width:24px!important;height:24px!important;padding:0!important;display:grid!important;place-items:center!important;line-height:1!important;font-weight:900!important;}
+#mobileCartButton{gap:8px!important;padding:0 15px!important;}
+.cart-bounce{animation:premiumCartBounce .72s cubic-bezier(.16,1.25,.3,1) both!important;}
+@keyframes premiumCartBounce{0%{transform:scale(1)}18%{transform:scale(1.08) rotate(-1deg)}38%{transform:scale(.96) rotate(1deg)}58%{transform:scale(1.035) rotate(0)}78%{transform:scale(.99)}100%{transform:scale(1)}}
+#mobileCartButton.cart-bounce>span:first-child,#mainCartButton.cart-bounce>span:first-child{animation:cartIconPulse .72s ease both;}
+@keyframes cartIconPulse{0%,100%{transform:scale(1)}30%{transform:scale(1.22) rotate(-8deg)}55%{transform:scale(.9) rotate(7deg)}75%{transform:scale(1.08) rotate(0)}}
+.quick-add-btn{position:relative;overflow:hidden;}
+.quick-add-btn::after{content:"";position:absolute;inset:-60% auto -60% -40%;width:28%;transform:translateX(-160%) rotate(18deg);background:rgba(255,255,255,.32);filter:blur(4px);transition:transform .55s ease;}
+.quick-add-btn:hover::after{transform:translateX(620%) rotate(18deg);}
+.quick-pick-card.is-selected{border-color:#fca5a5!important;box-shadow:0 12px 30px rgba(220,38,38,.13)!important;transform:translateY(-3px)!important;}
+.quick-pick-card.is-selected .quick-add-panel{border-top:1px solid #fee2e2;}
+.aud-banner-spacer{margin-top:18px!important;}
+@media(max-width:768px){
+ #mobileCartButton{width:150px!important;min-width:150px!important;height:50px!important;padding:0 16px!important;gap:9px!important;}
+ #mobileCartButton>span:first-child{width:26px!important;height:26px!important;font-size:21px!important;}
+ #mobileCartCount{flex-basis:25px!important;width:25px!important;min-width:25px!important;height:25px!important;font-size:11px!important;}
+ #toast{bottom:76px!important;bottom:calc(76px + env(safe-area-inset-bottom))!important;max-width:calc(100vw - 32px)!important;white-space:nowrap!important;}
+ #audBanner{margin-top:18px!important;margin-bottom:22px!important;}
+ #audBanner>div{min-width:0;}
+ #audBanner p{line-height:1.45!important;}
+}
+@media(min-width:769px){#audBanner{margin-top:18px!important;}}
+</style>
+
+<style id="cart-spacing-final-fix">
+/* Final cart spacing fix: keep icon, label and count visually separated */
+#viewCart,
+#cartButton,
+button[onclick*="openCart"] {
+  gap: 14px !important;
+}
+#viewCart .cart-count,
+#cartButton .cart-count,
+.cart-count {
+  margin-left: 6px !important;
+  min-width: 28px !important;
+  padding-left: 7px !important;
+  padding-right: 7px !important;
+}
+@media (min-width: 769px) {
+  #viewCart,
+  #cartButton,
+  button[onclick*="openCart"] {
+    gap: 18px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  #viewCart .cart-count,
+  #cartButton .cart-count,
+  .cart-count {
+    margin-left: 8px !important;
+    min-width: 30px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -167,13 +296,15 @@ img, video, iframe{
 
 <main id="menu" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
   <div class="flex flex-col lg:flex-row lg:items-end gap-5 justify-between">
-    <div><p class="text-red-600 font-black uppercase tracking-[.2em] text-xs">Vishal Tiffin Service Rugby</p><h2 class="text-4xl md:text-5xl font-black mt-2">Our Menu</h2><p class="text-gray-500 mt-3 max-w-2xl">Adults and kids favourites, with £1.50 delivery on orders £20 or less · FREE delivery above £20. Browse the menu, add items to your cart and order by WhatsApp.</p></div>
+    <div><p class="text-red-600 font-black uppercase tracking-[.2em] text-xs">Vishal Tiffin Service Rugby</p><h2 class="text-4xl md:text-5xl font-black mt-2">Our Menu</h2><p class="text-gray-500 mt-3 max-w-2xl">Freshly prepared Indian favourites, snacks, drinks and desserts. £1.50 delivery on orders £20 or less · FREE delivery above £20. Tap a category, choose your food and order by WhatsApp.</p></div>
     <div class="relative w-full lg:w-80"><input id="search" oninput="renderMenu()" placeholder="Search dishes..." class="w-full bg-white border border-gray-200 rounded-full py-3.5 pl-11 pr-4 outline-none focus:border-red-400"><span class="absolute left-4 top-3.5">🔎</span></div>
   </div>
 
   <div id="audTabs" class="flex flex-wrap gap-3 mt-8"></div>
   <div id="audBanner" class="hidden"></div>
-  <div id="categories" class="flex gap-3 overflow-x-auto hide-scroll py-7"></div>
+  <div class="mt-7 text-sm font-black text-gray-900">Browse by category</div>
+  <div id="categories" class="grid grid-cols-2 md:grid-cols-4 gap-3 py-6"></div>
+  <div id="quickPicks" class="mb-8"></div>
   <div id="menuGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
 </main>
 
@@ -192,6 +323,7 @@ img, video, iframe{
       <div><div class="text-3xl">🚚</div><h3 class="font-black text-xl mt-3">Delivery</h3><p class="text-white/60 mt-2">£1.50 delivery on orders £20 or less · FREE delivery above £20.</p></div>
       <div><div class="text-3xl">📞</div><h3 class="font-black text-xl mt-3">Call / WhatsApp</h3><p class="text-white/60 mt-2">07733 838621</p></div>
       <div><div class="text-3xl">🍽️</div><h3 class="font-black text-xl mt-3">Food</h3><p class="text-white/60 mt-2">Indian · Chinese · Kids favourites</p></div>
+      <div><div class="text-3xl">🕘</div><h3 class="font-black text-xl mt-3">Open Every Day</h3><p class="text-white/60 mt-2">9:00 AM – 10:30 PM</p></div>
     </div>
   </div>
 </section>
@@ -238,6 +370,17 @@ img, video, iframe{
     <p id="successText" class="text-gray-500 mt-2"></p>
     <div id="orderDetails" class="text-left bg-gray-50 rounded-2xl p-5 mt-6"></div>
     <button id="whatsappOrderBtn" onclick="sendLastOrderToWhatsApp()" class="mt-6 w-full py-3.5 rounded-full bg-green-600 hover:bg-green-700 text-white font-bold">💬 Send Order on WhatsApp</button><button onclick="closeSuccess()" class="mt-3 w-full py-3.5 rounded-full bg-gray-100 text-gray-900 font-bold">Continue browsing</button>
+  </div>
+</div>
+
+<div id="whatsappConfirmModal" class="hidden fixed inset-0 z-[95] bg-black/60 p-4 overflow-y-auto">
+  <div class="modal bg-white max-w-md mx-auto my-20 rounded-[2rem] p-7 text-center shadow-2xl">
+    <div class="w-16 h-16 rounded-full bg-green-100 text-green-600 grid place-items-center text-3xl mx-auto">💬</div>
+    <h2 class="text-2xl font-black mt-4">Did you send the WhatsApp order?</h2>
+    <p class="text-gray-500 mt-2">Your order is only treated as placed after you send the message to Vishal Tiffin Service Rugby on WhatsApp.</p>
+    <button onclick="confirmWhatsAppSent()" class="mt-6 w-full py-3.5 rounded-full bg-green-600 hover:bg-green-700 text-white font-bold">✓ Yes, I sent the order</button>
+    <button onclick="sendLastOrderToWhatsApp()" class="mt-3 w-full py-3.5 rounded-full bg-gray-100 text-gray-900 font-bold">💬 Open WhatsApp again</button>
+    <button onclick="closeWhatsAppConfirm()" class="mt-3 text-sm text-gray-500 font-semibold">Not yet</button>
   </div>
 </div>
 
@@ -327,87 +470,87 @@ const FREE_DELIVERY_THRESHOLD=20;
 function deliveryFee(sub){return sub>FREE_DELIVERY_THRESHOLD?0:DELIVERY_FEE;}
 
 const MENU=[
-  {id:1,cat:"Rice & Roti Combos / Monthly Pack",name:"Monthly Pack",desc:"<ul class='list-disc list-inside space-y-1 text-sm'><li>Rice with Curry</li><li>Roti with Any Curry</li><li>Poori with Curry</li></ul>",price:150,img:IMG.monthly,veg:true,popular:true,aud:"adult"},
+  {id:1,cat:"Main Course",name:"Monthly Pack",desc:"<ul class='list-disc list-inside space-y-1 text-sm'><li>Rice with Curry</li><li>Roti with Any Curry</li><li>Poori with Curry</li></ul>",price:150,popular:true,img:IMG.monthly,veg:true,aud:"adult"},
 
-  {id:5,cat:"Only Curries",name:"Punjabi Cholay",desc:"Punjabi-style chickpea curry.",price:4,img:IMG.cholay,veg:true,aud:"adult"},
-  {id:6,cat:"Only Curries",name:"Rajma",desc:"Kidney bean curry.",price:4,img:IMG.rajma,veg:true,aud:"adult"},
-  {id:7,cat:"Only Curries",name:"Bhindi",desc:"Indian-style okra curry.",price:4,img:IMG.bhindi,veg:true,aud:"adult"},
-  {id:8,cat:"Only Curries",name:"Dal Makhni",desc:"Rich creamy black lentil curry.",price:5,img:IMG.dalMakhni,veg:true,aud:"adult"},
-  {id:9,cat:"Only Curries",name:"Aloo",desc:"Potato curry.",price:3,img:IMG.aloo,veg:true,aud:"adult"},
-  {id:10,cat:"Only Curries",name:"Palak Paneer",desc:"Paneer cooked with spinach.",price:4,img:IMG.palakPaneer,veg:true,aud:"adult"},
-  {id:11,cat:"Only Curries",name:"Mushroom Matar",desc:"Mushroom and peas curry.",price:4,img:IMG.mushroomMatar,veg:true,aud:"adult"},
-  {id:12,cat:"Only Curries",name:"Matar Paneer",desc:"Peas and paneer curry.",price:4,img:IMG.matarPaneer,veg:true,aud:"adult"},
-  {id:13,cat:"Only Curries",name:"Kerala",desc:"Kerala dish as listed on the menu.",price:5,img:IMG.kerala,veg:true,aud:"adult"},
-  {id:14,cat:"Only Curries",name:"Black Eye Beans",desc:"Black-eyed bean curry.",price:4,img:IMG.blackEyeBeans,veg:true,aud:"adult"},
-  {id:41,cat:"Only Curries",name:"Paneer Butter Masala",desc:"Paneer cooked in a rich buttery tomato gravy.",price:5,img:IMG.paneerButterMasala,veg:true,aud:"adult"},
-  {id:42,cat:"Only Curries",name:"Dal Tadka",desc:"Yellow dal tempered with aromatic spices.",price:3,img:IMG.dalTadka,veg:true,aud:"adult"},
-  {id:43,cat:"Only Curries",name:"Paneer Bhurji",desc:"Crumbled paneer cooked with onion, tomato and spices.",price:6,img:IMG.paneerBhurji,veg:true,aud:"adult"},
-  {id:67,cat:"Only Curries",name:"Aloo Gobi",desc:"Potato and cauliflower curry.",price:4,img:IMG.alooGobi,veg:true,aud:"adult"},
-  {id:70,cat:"Only Curries",name:"Aloo Palak",desc:"Potato cooked with spinach.",price:4,img:IMG.alooPalak,veg:true,aud:"adult"},
+  {id:5,cat:"Main Course",name:"Punjabi Cholay",desc:"Punjabi-style chickpea curry.",price:4,img:IMG.cholay,veg:true,aud:"adult"},
+  {id:6,cat:"Main Course",name:"Rajma",desc:"Kidney bean curry.",price:4,img:IMG.rajma,veg:true,aud:"adult"},
+  {id:7,cat:"Main Course",name:"Bhindi",desc:"Indian-style okra curry.",price:4,popular:true,img:IMG.bhindi,veg:true,aud:"adult"},
+  {id:8,cat:"Main Course",name:"Dal Makhni",desc:"Rich creamy black lentil curry.",price:5,img:IMG.dalMakhni,veg:true,aud:"adult"},
+  {id:9,cat:"Main Course",name:"Aloo",desc:"Potato curry.",price:3,img:IMG.aloo,veg:true,aud:"adult"},
+  {id:10,cat:"Main Course",name:"Palak Paneer",desc:"Paneer cooked with spinach.",price:4,img:IMG.palakPaneer,veg:true,aud:"adult"},
+  {id:11,cat:"Main Course",name:"Mushroom Matar",desc:"Mushroom and peas curry.",price:4,img:IMG.mushroomMatar,veg:true,aud:"adult"},
+  {id:12,cat:"Main Course",name:"Matar Paneer",desc:"Peas and paneer curry.",price:4,popular:true,img:IMG.matarPaneer,veg:true,aud:"adult"},
+  {id:13,cat:"Main Course",name:"Kerala",desc:"Kerala dish as listed on the menu.",price:5,img:IMG.kerala,veg:true,aud:"adult"},
+  {id:14,cat:"Main Course",name:"Black Eye Beans",desc:"Black-eyed bean curry.",price:4,img:IMG.blackEyeBeans,veg:true,aud:"adult"},
+  {id:41,cat:"Main Course",name:"Paneer Butter Masala",desc:"Paneer cooked in a rich buttery tomato gravy.",price:5,img:IMG.paneerButterMasala,veg:true,aud:"adult"},
+  {id:42,cat:"Main Course",name:"Dal Tadka",desc:"Yellow dal tempered with aromatic spices.",price:3,img:IMG.dalTadka,veg:true,aud:"adult"},
+  {id:43,cat:"Main Course",name:"Paneer Bhurji",desc:"Crumbled paneer cooked with onion, tomato and spices.",price:6,img:IMG.paneerBhurji,veg:true,aud:"adult"},
+  {id:67,cat:"Main Course",name:"Aloo Gobi",desc:"Potato and cauliflower curry.",price:4,img:IMG.alooGobi,veg:true,aud:"adult"},
+  {id:70,cat:"Main Course",name:"Aloo Palak",desc:"Potato cooked with spinach.",price:4,img:IMG.alooPalak,veg:true,aud:"adult"},
 
-  {id:65,cat:"Prantha & Raita",name:"Plain Paratha",desc:"Plain paratha cooked on the tawa with oil — no butter.",price:1,img:IMG.plainParatha,veg:true,aud:"adult"},
-  {id:15,cat:"Prantha & Raita",name:"Aloo Prantha",desc:"Stuffed potato prantha.",price:2,img:IMG.alooParatha,veg:true,aud:"adult"},
-  {id:16,cat:"Prantha & Raita",name:"Pyaj Prantha",desc:"Onion stuffed prantha.",price:2,img:IMG.pyajParatha,veg:true,aud:"adult"},
-  {id:17,cat:"Prantha & Raita",name:"Paneer Prantha",desc:"Paneer stuffed prantha.",price:3,img:IMG.paneerParatha,veg:true,aud:"adult"},
-  {id:18,cat:"Prantha & Raita",name:"Mix Veg Prantha",desc:"Mixed vegetable stuffed prantha.",price:3,img:IMG.mixVegParatha,veg:true,aud:"adult"},
-  {id:19,cat:"Prantha & Raita",name:"Gobi Prantha",desc:"Cauliflower stuffed prantha.",price:3,img:IMG.gobiParatha,veg:true,aud:"adult"},
-  {id:20,cat:"Prantha & Raita",name:"Boondi Raita",desc:"Yogurt with boondi.",price:3,img:IMG.boondiRaita,veg:true,aud:"adult"},
-  {id:21,cat:"Prantha & Raita",name:"Plain Curd",desc:"Plain yogurt.",price:2,img:IMG.curd,veg:true,aud:"adult"},
-  {id:22,cat:"Prantha & Raita",name:"Onion Raita",desc:"Yogurt with onion.",price:3,img:IMG.onionRaita,veg:true,aud:"adult"},
-  {id:44,cat:"Prantha & Raita",name:"Plain Roti",desc:"Plain roti — 50p each.",price:0.5,img:IMG.roti,veg:true,aud:"adult"},
-  {id:45,cat:"Prantha & Raita",name:"Butter Roti",desc:"Roti brushed with butter.",price:0.6,img:IMG.butterRoti,veg:true,aud:"adult"},
-  {id:46,cat:"Prantha & Raita",name:"Garlic Paratha",desc:"Prantha with garlic and herbs.",price:3,img:IMG.garlicParantha,veg:true,aud:"adult"},
+  {id:65,cat:"Main Course",name:"Plain Paratha",desc:"Plain paratha cooked on the tawa with oil — no butter.",price:1,img:IMG.plainParatha,veg:true,aud:"adult"},
+  {id:15,cat:"Main Course",name:"Aloo Prantha",desc:"Stuffed potato prantha.",price:2,popular:true,img:IMG.alooParatha,veg:true,aud:"adult"},
+  {id:16,cat:"Main Course",name:"Pyaj Prantha",desc:"Onion stuffed prantha.",price:2,popular:true,img:IMG.pyajParatha,veg:true,aud:"adult"},
+  {id:17,cat:"Main Course",name:"Paneer Prantha",desc:"Paneer stuffed prantha.",price:3,img:IMG.paneerParatha,veg:true,aud:"adult"},
+  {id:18,cat:"Main Course",name:"Mix Veg Prantha",desc:"Mixed vegetable stuffed prantha.",price:3,img:IMG.mixVegParatha,veg:true,aud:"adult"},
+  {id:19,cat:"Main Course",name:"Gobi Prantha",desc:"Cauliflower stuffed prantha.",price:3,img:IMG.gobiParatha,veg:true,aud:"adult"},
+  {id:20,cat:"Main Course",name:"Boondi Raita",desc:"Yogurt with boondi.",price:3,img:IMG.boondiRaita,veg:true,aud:"adult"},
+  {id:21,cat:"Main Course",name:"Plain Curd",desc:"Plain yogurt.",price:2,img:IMG.curd,veg:true,aud:"adult"},
+  {id:22,cat:"Main Course",name:"Onion Raita",desc:"Yogurt with onion.",price:3,img:IMG.onionRaita,veg:true,aud:"adult"},
+  {id:44,cat:"Main Course",name:"Plain Roti",desc:"Plain roti — 50p each.",price:0.5,img:IMG.roti,veg:true,aud:"adult"},
+  {id:45,cat:"Main Course",name:"Butter Roti",desc:"Roti brushed with butter.",price:0.6,img:IMG.butterRoti,veg:true,aud:"adult"},
+  {id:46,cat:"Main Course",name:"Garlic Paratha",desc:"Prantha with garlic and herbs.",price:3,img:IMG.garlicParantha,veg:true,aud:"adult"},
 
-  {id:23,cat:"Chinese",name:"Chilli Paneer",desc:"Paneer with peppers and Indo-Chinese sauce.",price:5,img:IMG.chilliPaneer,veg:true,aud:"adult"},
-  {id:24,cat:"Chinese",name:"Noodles",desc:"Noodles.",price:4,img:IMG.noodles,veg:true,aud:"adult"},
-  {id:25,cat:"Chinese",name:"Garlic Noodles",desc:"Garlic noodles.",price:4,img:IMG.garlicNoodles,veg:true,aud:"adult"},
-  {id:26,cat:"Chinese",name:"Chilli Mushroom",desc:"Chilli mushroom.",price:4,img:IMG.chilliMushroom,veg:true,aud:"adult"},
-  {id:47,cat:"Chinese",name:"Fried Rice",desc:"Vegetable fried rice.",price:4,img:IMG.friedRice,veg:true,aud:"adult"},
+  {id:23,cat:"Main Course",name:"Chilli Paneer",desc:"Paneer with peppers and Indo-Chinese sauce.",price:5,img:IMG.chilliPaneer,veg:true,aud:"adult"},
+  {id:24,cat:"Snacks",name:"Noodles",desc:"Noodles.",price:4,img:IMG.noodles,veg:true,aud:"adult"},
+  {id:25,cat:"Snacks",name:"Garlic Noodles",desc:"Garlic noodles.",price:4,img:IMG.garlicNoodles,veg:true,aud:"adult"},
+  {id:26,cat:"Main Course",name:"Chilli Mushroom",desc:"Chilli mushroom.",price:4,img:IMG.chilliMushroom,veg:true,aud:"adult"},
+  {id:47,cat:"Main Course",name:"Fried Rice",desc:"Vegetable fried rice.",price:4,img:IMG.friedRice,veg:true,aud:"adult"},
 
   {id:27,cat:"Desserts",name:"Kheer",desc:"Traditional Indian rice pudding.",price:3,img:IMG.kheer,veg:true,aud:"adult"},
   {id:28,cat:"Desserts",name:"Fruit Custard",desc:"Creamy fruit custard.",price:4,img:IMG.fruitCustard,veg:true,aud:"adult"},
   {id:48,cat:"Desserts",name:"Sooji Halwa",desc:"Traditional Indian halwa.",price:5,img:IMG.suniHalwa,veg:true,aud:"adult"},
 
-  {id:29,cat:"Side Orders",name:"Maggi",desc:"Maggi noodles.",price:3,img:IMG.maggi,veg:true,aud:"adult"},
-  {id:30,cat:"Side Orders",name:"Plain Rice",desc:"Plain rice.",price:2,img:IMG.plainRice,veg:true,aud:"adult"},
-  {id:31,cat:"Side Orders",name:"Pasta",desc:"Pasta.",price:4,img:IMG.pasta,veg:true,aud:"adult"},
-  {id:49,cat:"Side Orders",name:"Salad Bowl",desc:"Fresh mixed salad bowl.",price:4,img:IMG.saladBowl,veg:true,aud:"adult"},
+  {id:29,cat:"Snacks",name:"Maggi",desc:"Maggi noodles.",price:3,img:IMG.maggi,veg:true,aud:"adult"},
+  {id:30,cat:"Main Course",name:"Plain Rice",desc:"Plain rice.",price:2,img:IMG.plainRice,veg:true,aud:"adult"},
+  {id:31,cat:"Main Course",name:"Pasta",desc:"Pasta.",price:4,img:IMG.pasta,veg:true,aud:"adult"},
+  {id:49,cat:"Main Course",name:"Salad Bowl",desc:"Fresh mixed salad bowl.",price:4,img:IMG.saladBowl,veg:true,aud:"adult"},
 
-  {id:50,cat:"Rice",name:"Vegetable Pulao",desc:"Fragrant vegetable pulao.",price:4,img:IMG.veggiePulao,veg:true,aud:"adult"},
+  {id:50,cat:"Main Course",name:"Vegetable Pulao",desc:"Fragrant vegetable pulao.",price:4,img:IMG.veggiePulao,veg:true,aud:"adult"},
 
-  {id:51,cat:"Soups",name:"Hot & Sour Vegetable Soup",desc:"Hot and sour vegetable soup.",price:4,img:IMG.hotSourSoup,veg:true,aud:"adult"},
-  {id:52,cat:"Soups",name:"Veggie Soup",desc:"Warm vegetable soup.",price:4,img:IMG.veggieSoup,veg:true,aud:"adult"},
+  {id:51,cat:"Main Course",name:"Hot & Sour Vegetable Soup",desc:"Hot and sour vegetable soup.",price:4,img:IMG.hotSourSoup,veg:true,aud:"adult"},
+  {id:52,cat:"Main Course",name:"Veggie Soup",desc:"Warm vegetable soup.",price:4,img:IMG.veggieSoup,veg:true,aud:"adult"},
 
-  {id:53,cat:"Tea & Coffee",name:"Tea",desc:"Hot tea.",price:2,img:IMG.tea,veg:true,aud:"adult"},
-  {id:54,cat:"Tea & Coffee",name:"Coffee",desc:"Hot coffee.",price:2,img:IMG.coffee,veg:true,aud:"adult"},
-  {id:55,cat:"Tea & Coffee",name:"Cold Coffee",desc:"Chilled coffee drink.",price:4,img:IMG.coldCoffee,veg:true,aud:"adult"},
+  {id:53,cat:"Drinks",name:"Tea",desc:"Hot tea.",price:2,img:IMG.tea,veg:true,aud:"adult"},
+  {id:54,cat:"Drinks",name:"Coffee",desc:"Hot coffee.",price:2,img:IMG.coffee,veg:true,aud:"adult"},
+  {id:55,cat:"Drinks",name:"Cold Coffee",desc:"Chilled coffee drink.",price:4,img:IMG.coldCoffee,veg:true,aud:"adult"},
 
-  {id:56,cat:"Lassi",name:"Sweet Lassi",desc:"Sweet yoghurt-based lassi.",price:3,img:IMG.sweetLassi,veg:true,aud:"adult"},
-  {id:57,cat:"Lassi",name:"Salt Lassi",desc:"Salted yoghurt-based lassi.",price:3,img:IMG.saltLassi,veg:true,aud:"adult"},
-  {id:58,cat:"Lassi",name:"Mango Lassi",desc:"Mango yoghurt lassi.",price:4,img:IMG.mangoLassi,veg:true,aud:"adult"},
+  {id:56,cat:"Drinks",name:"Sweet Lassi",desc:"Sweet yoghurt-based lassi.",price:3,img:IMG.sweetLassi,veg:true,aud:"adult"},
+  {id:57,cat:"Drinks",name:"Salt Lassi",desc:"Salted yoghurt-based lassi.",price:3,img:IMG.saltLassi,veg:true,aud:"adult"},
+  {id:58,cat:"Drinks",name:"Mango Lassi",desc:"Mango yoghurt lassi.",price:4,img:IMG.mangoLassi,veg:true,aud:"adult"},
 
-  {id:59,cat:"Shakes",name:"Banana Shake",desc:"Banana milkshake.",price:4,img:IMG.bananaShake,veg:true,aud:"adult"},
-  {id:60,cat:"Shakes",name:"Strawberry Shake",desc:"Strawberry milkshake.",price:4,img:IMG.strawberryShake,veg:true,aud:"adult"},
-  {id:61,cat:"Shakes",name:"Mango Shake",desc:"Mango milkshake.",price:4,img:IMG.mangoShake,veg:true,aud:"adult"},
-  {id:62,cat:"Shakes",name:"Oreo Shake",desc:"Oreo milkshake.",price:4,img:IMG.oreoShake,veg:true,aud:"adult"},
+  {id:59,cat:"Drinks",name:"Banana Shake",desc:"Banana milkshake.",price:4,img:IMG.bananaShake,veg:true,aud:"adult"},
+  {id:60,cat:"Drinks",name:"Strawberry Shake",desc:"Strawberry milkshake.",price:4,img:IMG.strawberryShake,veg:true,aud:"adult"},
+  {id:61,cat:"Drinks",name:"Mango Shake",desc:"Mango milkshake.",price:4,popular:true,img:IMG.mangoShake,veg:true,aud:"adult"},
+  {id:62,cat:"Drinks",name:"Oreo Shake",desc:"Oreo milkshake.",price:4,img:IMG.oreoShake,veg:true,aud:"adult"},
 
-  {id:63,cat:"Indian Snacks",name:"Pav Bhaji",desc:"Spiced vegetable bhaji served with buttered pav.",price:6,img:IMG.pavBhaji,veg:true,aud:"adult"},
-  {id:64,cat:"Only Curries",name:"Pakora Curry",desc:"Kadhi-style curry with crispy pakoras.",price:4,img:IMG.pakoraCurry,veg:true,aud:"adult"},
-  {id:66,cat:"Indian Snacks",name:"Punjabi Chole Kulche",desc:"Punjabi-style chole served with 2 kulche.",price:5,img:IMG.choleKulche,veg:true,aud:"adult"},
-  {id:71,cat:"Indian Snacks",name:"Onion Pakoda",desc:"Crispy onion pakodas.",price:4,img:IMG.onionPakoda,veg:true,aud:"adult"},
-  {id:72,cat:"Indian Snacks",name:"Potato Pakoda",desc:"Crispy potato pakodas.",price:3,img:IMG.potatoPakoda,veg:true,aud:"adult"},
-  {id:73,cat:"Indian Snacks",name:"Gobi Pakoda",desc:"Crispy cauliflower pakodas.",price:4,img:IMG.gobiPakoda,veg:true,aud:"adult"},
-  {id:68,cat:"Indian Snacks",name:"Aloo Poori",desc:"Aloo curry served with 3 pcs poori.",price:5,img:IMG.alooPoori,veg:true,aud:"adult"},
-  {id:69,cat:"Indian Snacks",name:"Cholay Poori",desc:"Cholay served with 3 pcs poori.",price:5,img:IMG.cholayPoori,veg:true,aud:"adult"},
+  {id:63,cat:"Snacks",name:"Pav Bhaji",desc:"Spiced vegetable bhaji served with buttered pav.",price:6,img:IMG.pavBhaji,veg:true,aud:"adult"},
+  {id:64,cat:"Main Course",name:"Pakora Curry",desc:"Kadhi-style curry with crispy pakoras.",price:4,img:IMG.pakoraCurry,veg:true,aud:"adult"},
+  {id:66,cat:"Snacks",name:"Punjabi Chole Kulche",desc:"Punjabi-style chole served with 2 kulche.",price:5,img:IMG.choleKulche,veg:true,aud:"adult"},
+  {id:71,cat:"Snacks",name:"Onion Pakoda",desc:"Crispy onion pakodas.",price:4,img:IMG.onionPakoda,veg:true,aud:"adult"},
+  {id:72,cat:"Snacks",name:"Potato Pakoda",desc:"Crispy potato pakodas.",price:3,img:IMG.potatoPakoda,veg:true,aud:"adult"},
+  {id:73,cat:"Snacks",name:"Gobi Pakoda",desc:"Crispy cauliflower pakodas.",price:4,img:IMG.gobiPakoda,veg:true,aud:"adult"},
+  {id:68,cat:"Snacks",name:"Aloo Poori",desc:"Aloo curry served with 3 pcs poori.",price:5,img:IMG.alooPoori,veg:true,aud:"adult"},
+  {id:69,cat:"Snacks",name:"Cholay Poori",desc:"Cholay served with 3 pcs poori.",price:5,img:IMG.cholayPoori,veg:true,aud:"adult"},
 
-  {id:33,cat:"Noodles",name:"Hakka Noodles",desc:"Hakka noodles.",price:4,img:IMG.hakkaNoodles,veg:true,popular:true,aud:"kids"},
-  {id:34,cat:"Noodles",name:"Chilli Garlic Noodles",desc:"Chilli garlic noodles.",price:4,img:IMG.chilliGarlicNoodles,veg:true,aud:"kids"},
+  {id:33,cat:"Snacks",name:"Hakka Noodles",desc:"Hakka noodles.",price:4,img:IMG.hakkaNoodles,veg:true,aud:"kids"},
+  {id:34,cat:"Snacks",name:"Chilli Garlic Noodles",desc:"Chilli garlic noodles.",price:4,img:IMG.chilliGarlicNoodles,veg:true,aud:"kids"},
   {id:35,cat:"Snacks",name:"Samosa (2 pcs)",desc:"Two crispy samosas.",price:4,img:IMG.samosa,veg:true,aud:"kids"},
   {id:36,cat:"Snacks",name:"Fries",desc:"Crispy fries.",price:3,img:IMG.fries,veg:true,aud:"kids"},
   {id:37,cat:"Snacks",name:"Cheese Fries",desc:"Fries topped with cheese.",price:4,img:IMG.cheeseFries,veg:true,aud:"kids"},
   {id:38,cat:"Snacks",name:"Onion Rings",desc:"Crispy onion rings.",price:4,img:IMG.onionRings,veg:true,aud:"kids"},
-  {id:39,cat:"Noodles",name:"Vegetable Chowmein",desc:"Vegetable chowmein.",price:4,img:IMG.vegChowmein,veg:true,popular:true,aud:"kids"},
-  {id:40,cat:"Noodles",name:"Indian Style Chowmein",desc:"Indian-style chowmein.",price:4.5,img:IMG.indianChowmein,veg:true,aud:"kids"}
+  {id:39,cat:"Snacks",name:"Vegetable Chowmein",desc:"Vegetable chowmein.",price:4,img:IMG.vegChowmein,veg:true,aud:"kids"},
+  {id:40,cat:"Snacks",name:"Indian Style Chowmein",desc:"Indian-style chowmein.",price:4.5,img:IMG.indianChowmein,veg:true,aud:"kids"}
 ];
 
 localStorage.removeItem("biteuk_cart"); localStorage.removeItem("vishal_tiffin_cart"); let cart=JSON.parse(localStorage.getItem("vishal_tiffin_cart")||"[]");
@@ -422,7 +565,7 @@ const AUD_INFO={
 
 function save(){localStorage.setItem("vishal_tiffin_cart",JSON.stringify(cart));updateCartCount();}
 function money(n){return n==null?"Price on request":"£"+Number(n).toFixed(2);}
-function updateCartCount(){document.getElementById("cartCount").textContent=cart.reduce((a,x)=>a+x.qty,0);}
+function updateCartCount(){const n=cart.reduce((a,x)=>a+x.qty,0);document.getElementById("cartCount").textContent=n;const m=document.getElementById("mobileCartCount");if(m)m.textContent=n;}
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.remove("hidden");clearTimeout(window._toast);window._toast=setTimeout(()=>t.classList.add("hidden"),2200);}
 function goHome(){window.scrollTo({top:0,behavior:"smooth"});}
 function audItems(){return activeAud==="all"?MENU:MENU.filter(x=>x.aud===activeAud);}
@@ -436,10 +579,10 @@ function renderAudTabs(){
  }).join("");
  const banner=document.getElementById("audBanner");
  if(activeAud==="kids"){
-   banner.className="rounded-3xl overflow-hidden bg-amber-500 text-white mb-8 flex items-center gap-5 p-6";
+   banner.className="aud-banner-spacer rounded-3xl overflow-hidden bg-amber-500 text-white mb-8 flex items-center gap-5 p-6";
    banner.innerHTML=`<div class="text-5xl">🎈</div><div><div class="font-black text-xl">Kids' Corner</div><p class="text-white/90 text-sm mt-1">Fun, mild and simple favourites — noodles, chowmein and crispy snacks that kids love.</p></div>`;
  } else if(activeAud==="adult"){
-   banner.className="rounded-3xl overflow-hidden bg-gray-900 text-white mb-8 flex items-center gap-5 p-6";
+   banner.className="aud-banner-spacer rounded-3xl overflow-hidden bg-gray-900 text-white mb-8 flex items-center gap-5 p-6";
    banner.innerHTML=`<div class="text-5xl">🍛</div><div><div class="font-black text-xl">Adults' Corner</div><p class="text-white/70 text-sm mt-1">Authentic Indian curries, paranthas, Chinese favourites and desserts.</p></div>`;
  } else {
    banner.className="hidden";banner.innerHTML="";
@@ -447,9 +590,30 @@ function renderAudTabs(){
 }
 function setAud(a){activeAud=a;activeCat="All";renderAudTabs();renderCategories();renderMenu();}
 function renderCategories(){
- document.getElementById("categories").innerHTML=cats().map(c=>`<button onclick="setCat('${c}')" class="shrink-0 px-5 py-3 rounded-full font-bold text-sm ${activeCat===c?"bg-red-600 text-white":"bg-white border border-gray-200 hover:border-red-300"}">${c}</button>`).join("");
+ const icons={"All":"🍽️","Main Course":"🍛","Snacks":"🍟","Drinks":"🥤","Desserts":"🍮"};
+ const subtitles={"All":"Everything in one place","Main Course":"Curries, rice & rotis","Snacks":"Quick bites & noodles","Drinks":"Tea, lassi & shakes","Desserts":"Sweet treats"};
+ document.getElementById("categories").innerHTML=cats().map(c=>`<button onclick="setCat('${c}')" class="category-card w-full px-3 py-4 md:py-5 rounded-2xl font-black text-sm md:text-base flex flex-col items-center justify-center gap-1 border-2 transition ${activeCat===c?"bg-red-600 text-white border-red-600 shadow-lg":"bg-white border-gray-200 hover:border-red-300 text-gray-700"}"><span class="text-2xl md:text-3xl">${icons[c]||"🍽️"}</span><span>${c}</span><small class="font-medium text-[10px] md:text-xs ${activeCat===c?"text-white/80":"text-gray-400"}">${subtitles[c]||""}</small></button>`).join("");
 }
 function setCat(c){activeCat=c;renderCategories();renderMenu();}
+function renderQuickPicks(){
+ const el=document.getElementById("quickPicks");
+ const q=document.getElementById("search").value.toLowerCase().trim();
+ if(q || activeCat!=="All"){el.innerHTML="";return;}
+ const picks=audItems().filter(x=>x.popular).slice(0,9);
+ if(!picks.length){el.innerHTML="";return;}
+ el.innerHTML=`<div class="flex items-end justify-between gap-3 mb-4"><div><div class="text-red-600 font-black uppercase tracking-[.18em] text-[10px]">Customer favourites</div><h3 class="text-2xl md:text-3xl font-black mt-1">🔥 Popular picks</h3></div><span class="text-xs text-gray-400 hidden sm:block">Tap a favourite, then Add to Cart</span></div><div class="quick-picks-grid">${picks.map(item=>`<article id="quickPick-${item.id}" class="quick-pick-card text-left bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm"><button type="button" onclick="selectQuickPick(${item.id})" class="w-full text-left block"><div class="relative"><img src="${item.img}" alt="${item.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src=fallbackSvg(this.alt)"><span class="quick-popular-badge">★ POPULAR</span></div><div class="p-3 pb-2"><div class="font-black text-sm">${item.name}</div><div class="flex justify-between items-center mt-1"><span class="text-xs text-gray-400">${item.cat}</span><span class="font-black">${money(item.price)}</span></div></div></button><div class="quick-add-panel"><button type="button" onclick="addQuickPick(${item.id},this)" class="quick-add-btn">＋ Add to Cart</button></div></article>`).join("")}</div>`;
+}
+function selectQuickPick(id){
+ document.querySelectorAll('.quick-pick-card.is-selected').forEach(x=>x.classList.remove('is-selected'));
+ const card=document.getElementById('quickPick-'+id);
+ if(card){card.classList.add('is-selected');setTimeout(()=>card.querySelector('.quick-add-btn')?.focus(),120);}
+}
+function addQuickPick(id,btn){
+ add(id);
+ const card=document.getElementById('quickPick-'+id);
+ if(card){card.classList.add('added-pop');setTimeout(()=>card.classList.remove('added-pop'),500);}
+ if(btn){const old=btn.innerHTML;btn.innerHTML='✓ Added to Cart';btn.classList.add('added');setTimeout(()=>{btn.innerHTML='＋ Add to Cart';btn.classList.remove('added');},1100);}
+}
 function fallbackSvg(label){
   const safe=String(label||"Food").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").slice(0,28);
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff7ed"/><stop offset="1" stop-color="#fee2e2"/></linearGradient></defs><rect width="900" height="600" fill="url(#g)"/><ellipse cx="450" cy="345" rx="260" ry="115" fill="#fff" stroke="#d1d5db" stroke-width="8"/><ellipse cx="450" cy="330" rx="205" ry="78" fill="#f59e0b" opacity=".22"/><circle cx="365" cy="315" r="26" fill="#16a34a"/><circle cx="450" cy="350" r="30" fill="#dc2626"/><circle cx="535" cy="315" r="24" fill="#16a34a"/><text x="450" y="120" text-anchor="middle" font-family="Arial,sans-serif" font-size="42" font-weight="700" fill="#171717">${safe}</text><text x="450" y="500" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#6b7280">Vishal Tiffin Service Rugby</text></svg>`;
@@ -457,6 +621,7 @@ function fallbackSvg(label){
 }
 
 function renderMenu(){
+ renderQuickPicks();
  const q=document.getElementById("search").value.toLowerCase().trim();
  const items=audItems().filter(x=>(activeCat==="All"||x.cat===activeCat)&&(!q||(x.name+" "+x.desc+" "+x.cat).toLowerCase().includes(q)));
  document.getElementById("menuGrid").innerHTML=items.length?items.map(item=>`
@@ -477,6 +642,8 @@ function add(id){
  const item=MENU.find(x=>x.id===id);if(!item)return;if(item.price==null){toast("Please call 07733 838621 for the price");return;}
  const found=cart.find(x=>x.id===id);if(found)found.qty++;else cart.push({...item,qty:1});
  save();toast(item.name+" added to cart");renderCart();
+ const cartButtons=document.querySelectorAll('#mobileCartButton,#mainCartButton');
+ cartButtons.forEach(b=>{b.classList.remove('cart-bounce');void b.offsetWidth;b.classList.add('cart-bounce');setTimeout(()=>b.classList.remove('cart-bounce'),500);});
 }
 function change(id,d){
  const x=cart.find(i=>i.id===id);if(!x)return;x.qty+=d;if(x.qty<=0)cart=cart.filter(i=>i.id!==id);save();renderCart();
@@ -538,6 +705,27 @@ function sendLastOrderToWhatsApp(){
  const message=buildWhatsAppMessage(order);
  const url=`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
  window.open(url,"_blank","noopener,noreferrer");
+ localStorage.setItem("vishal_tiffin_whatsapp_pending","1");
+} 
+
+function showWhatsAppConfirmation(){
+ if(localStorage.getItem("vishal_tiffin_whatsapp_pending")!=="1")return;
+ document.getElementById("whatsappConfirmModal").classList.remove("hidden");
+}
+
+function closeWhatsAppConfirm(){
+ document.getElementById("whatsappConfirmModal").classList.add("hidden");
+}
+
+function confirmWhatsAppSent(){
+ localStorage.removeItem("vishal_tiffin_whatsapp_pending");
+ closeWhatsAppConfirm();
+ const raw=localStorage.getItem("vishal_tiffin_last_order");
+ if(!raw)return;
+ const order=JSON.parse(raw);
+ document.getElementById("successText").textContent=`Thank you, ${order.name}. Your order ${order.number} has been placed successfully and sent to Vishal Tiffin Service Rugby on WhatsApp.`;
+ document.getElementById("whatsappOrderBtn").classList.add("hidden");
+ document.getElementById("successModal").classList.remove("hidden");
 }
 
 function placeOrder(e){
@@ -546,16 +734,18 @@ function placeOrder(e){
  const orderNo="VT"+Date.now().toString().slice(-7);
  const order={number:orderNo,name,phone,address,landmark:document.getElementById("customerLandmark").value.trim(),notes:document.getElementById("customerNotes").value.trim(),items:cart.map(x=>({...x})),foodTotal:total(),delivery:deliveryFee(total()),total:grandTotal(),payment:"Cash on Delivery",time:new Date().toLocaleString("en-GB")};
  localStorage.setItem("vishal_tiffin_last_order",JSON.stringify(order));
+ localStorage.setItem("vishal_tiffin_whatsapp_pending","1");
  const whatsappUrl=`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsAppMessage(order))}`;
  cart=[];save();closeCheckout();
- document.getElementById("successText").textContent=`Thank you, ${name}. Your order ${orderNo} is ready to send to Vishal Tiffin Service Rugby on WhatsApp.`;
- document.getElementById("orderDetails").innerHTML=`<div class="grid sm:grid-cols-2 gap-4"><div><div class="text-xs text-gray-500 uppercase font-bold">Order number</div><div class="font-black mt-1">${orderNo}</div></div><div><div class="text-xs text-gray-500 uppercase font-bold">Payment</div><div class="font-black mt-1">Cash on Delivery · £1.50 delivery on orders £20 or less · FREE above £20</div></div><div class="sm:col-span-2"><div class="text-xs text-gray-500 uppercase font-bold">Delivery address</div><div class="font-semibold mt-1">${address}${order.landmark?", "+order.landmark:""}</div></div><div class="sm:col-span-2 grid grid-cols-2 gap-3"><div><div class="text-xs text-gray-500 uppercase font-bold">Food total</div><div class="font-black text-xl mt-1">${money(order.foodTotal)}</div></div><div><div class="text-xs text-gray-500 uppercase font-bold">Delivery</div><div class="font-black text-xl mt-1">${money(order.delivery)}</div></div><div class="col-span-2 border-t pt-3"><div class="text-xs text-gray-500 uppercase font-bold">Order total</div><div class="font-black text-2xl mt-1 text-red-600">${money(order.total)}</div></div></div></div>`;
- const btn=document.getElementById("whatsappOrderBtn");
- btn.dataset.whatsappUrl=whatsappUrl;
- document.getElementById("successModal").classList.remove("hidden");
- // Open WhatsApp automatically after the customer clicks Place Order.
- setTimeout(()=>window.open(whatsappUrl,"_blank","noopener,noreferrer"),100);
+ // Do NOT show "Order placed" yet. The customer must send the WhatsApp message first.
+ window.open(whatsappUrl,"_blank","noopener,noreferrer");
+ setTimeout(showWhatsAppConfirmation,1200);
 }
+
+// If the customer returns to the website after WhatsApp was opened, ask for confirmation.
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(showWhatsAppConfirmation,500);});
+window.addEventListener("focus",()=>setTimeout(showWhatsAppConfirmation,500));
+
 function closeSuccess(){document.getElementById("successModal").classList.add("hidden");document.getElementById("menu").scrollIntoView({behavior:"smooth"});}
 renderAudTabs();renderCategories();renderMenu();renderCart();updateCartCount();
 </script>
@@ -575,7 +765,7 @@ renderAudTabs();renderCategories();renderMenu();renderCart();updateCartCount();
 <div id="mobileCartBar" aria-label="Shopping cart">
   <button id="mobileCartButton" type="button" onclick="openCart()">
     <span aria-hidden="true">🛒</span>
-    <span>Cart</span>
+    <span>View Cart</span>
     <span id="mobileCartCount">0</span>
   </button>
 </div>
@@ -602,8 +792,8 @@ renderAudTabs();renderCategories();renderMenu();renderCart();updateCartCount();
     }
     #mobileCartButton{
       box-sizing:border-box!important;
-      width:110px!important;
-      min-width:110px!important;
+      width:150px!important;
+      min-width:150px!important;
       max-width:calc(100vw - 24px)!important;
       height:46px!important;
       margin:0!important;
@@ -615,7 +805,7 @@ renderAudTabs();renderCategories();renderMenu();renderCart();updateCartCount();
       display:flex!important;
       align-items:center!important;
       justify-content:center!important;
-      gap:7px!important;
+      gap:10px!important;
       font:700 14px/1 Arial,sans-serif!important;
       white-space:nowrap!important;
       box-shadow:0 5px 18px rgba(0,0,0,.28)!important;
