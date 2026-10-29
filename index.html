@@ -829,57 +829,52 @@ function confirmWhatsAppSent(){
 
 function placeOrder(e){
  e.preventDefault();
+ try {
+  if(!cart.length){toast("Your cart is empty. Add items before placing an order.");return;}
+  const form=document.getElementById("checkoutForm");
+  if(form && !form.checkValidity()){form.reportValidity();return;}
+  const name=document.getElementById("customerName").value.trim();
+  const phone=document.getElementById("customerPhone").value.trim();
+  const address=document.getElementById("customerAddress").value.trim();
+  if(!name||!phone||!address){toast("Please complete your name, phone and delivery address.");return;}
 
- const form=document.getElementById("checkoutForm");
- if(!form || !form.reportValidity()) return;
- if(!cart.length){toast("Your cart is empty. Add items before placing an order.");return;}
+  const orderNo="VT"+Date.now().toString().slice(-7);
+  const foodTotal=total();
+  // Keep order data small: cart entries contain embedded base64 food photos,
+  // which can exceed the browser's localStorage quota if copied into the order.
+  const order={
+   number:orderNo,name,phone,address,
+   landmark:document.getElementById("customerLandmark").value.trim(),
+   notes:document.getElementById("customerNotes").value.trim(),
+   items:cart.map(x=>({id:x.id,name:String(x.name||"Item"),price:Number(x.price)||0,qty:Number(x.qty)||1})),
+   foodTotal,delivery:deliveryFee(foodTotal),total:foodTotal+deliveryFee(foodTotal),
+   payment:"Cash on Delivery",time:new Date().toLocaleString("en-GB")
+  };
+  const whatsappUrl=`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsAppMessage(order))}`;
+  // Open WhatsApp during the direct click/submit gesture so pop-up blockers are less likely to stop it.
+  const whatsappWindow=window.open(whatsappUrl,"_blank");
+  if(!whatsappWindow){toast("WhatsApp was blocked. Allow pop-ups for this site, then tap Place Order again.");return;}
+  try{whatsappWindow.opener=null;}catch(_){ }
 
- const submitBtn=form.querySelector('button[type="submit"],button:not([type])');
- if(submitBtn && submitBtn.dataset.submitting==="1") return;
-
- // Open the tab directly inside the submit gesture. Browsers often block
- // window.open() when it is delayed until after async work or a timer.
- const whatsappTab=window.open("about:blank","_blank");
- if(!whatsappTab){
-   toast("WhatsApp pop-up was blocked. Please allow pop-ups and tap Place Order again.");
-   return; // Do not clear the customer's cart if WhatsApp could not be opened.
- }
-
- try{
-   if(submitBtn){submitBtn.dataset.submitting="1";submitBtn.disabled=true;submitBtn.textContent="Opening WhatsApp…";}
-   const name=document.getElementById("customerName").value.trim();
-   const phone=document.getElementById("customerPhone").value.trim();
-   const address=document.getElementById("customerAddress").value.trim();
-   const orderNo="VT"+Date.now().toString().slice(-7);
-   const foodTotal=total();
-   const fee=deliveryFee(foodTotal);
-   const order={
-     number:orderNo,name,phone,address,
-     landmark:document.getElementById("customerLandmark").value.trim(),
-     notes:document.getElementById("customerNotes").value.trim(),
-     items:cart.map(x=>({...x})),
-     foodTotal,delivery:fee,total:foodTotal+fee,
-     payment:"Cash on Delivery",
-     time:new Date().toLocaleString("en-GB")
-   };
-   const whatsappUrl=`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsAppMessage(order))}`;
-
+  try {
    localStorage.setItem("vishal_tiffin_last_order",JSON.stringify(order));
    localStorage.setItem("vishal_tiffin_whatsapp_pending","1");
-   whatsappTab.opener=null;
-   whatsappTab.location.href=whatsappUrl;
-
-   cart=[];
-   save();
-   closeCheckout();
-   renderCart();
-   setTimeout(showWhatsAppConfirmation,1000);
- }catch(err){
-   try{whatsappTab.close();}catch(_){}
-   console.error("Unable to prepare WhatsApp order:",err);
-   toast("Could not prepare your order. Please try again.");
- }finally{
-   if(submitBtn){submitBtn.dataset.submitting="0";submitBtn.disabled=false;submitBtn.textContent="Place Order — Send on WhatsApp";}
+  } catch(storageError) {
+   // Clear only stale cart storage if the browser is out of storage space, then retry compact order data.
+   try {
+    localStorage.removeItem("vishal_tiffin_cart");
+    localStorage.setItem("vishal_tiffin_last_order",JSON.stringify(order));
+    localStorage.setItem("vishal_tiffin_whatsapp_pending","1");
+   } catch(_){ toast("WhatsApp opened with your order. Please send the message there to complete the order."); }
+  }
+  cart=[];
+  try{save();}catch(_){try{localStorage.removeItem("vishal_tiffin_cart");}catch(__){} updateCartCount();}
+  renderCart();
+  closeCheckout();
+  setTimeout(showWhatsAppConfirmation,900);
+ } catch(err) {
+  console.error("Order preparation failed:",err);
+  toast("We couldn't prepare the order. Please try again. If it keeps happening, refresh the page and try once more.");
  }
 }
 
