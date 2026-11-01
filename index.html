@@ -983,5 +983,303 @@ const coldDrinkFallback=MENU.find(x=>x.id===75);if(coldDrinkFallback&&document.g
   else initMobileCart();
 })();
 </script>
+
+<!-- Supabase-powered admin + live menu integration -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style id="vishal-admin-styles">
+#adminApp{font-family:Inter,system-ui,sans-serif;color:#f8fafc;background:#090909;min-height:100vh}
+#adminApp .adm-card{background:#151515;border:1px solid #333;border-radius:18px;padding:18px}
+#adminApp .adm-input{width:100%;background:#090909;border:1px solid #444;color:#fff;border-radius:10px;padding:10px 12px;outline:none}
+#adminApp .adm-input:focus{border-color:#d4af37}
+#adminApp .adm-btn{border-radius:10px;padding:10px 14px;font-weight:800;background:#b91c1c;color:#fff}
+#adminApp .adm-btn.gold{background:#d4af37;color:#111}
+#adminApp .adm-btn.ghost{background:#252525;border:1px solid #444}
+#adminApp .adm-tab{padding:10px 13px;border-radius:10px;color:#ddd;background:#202020;font-weight:700}
+#adminApp .adm-tab.active{background:#d4af37;color:#111}
+#adminApp table{width:100%;border-collapse:collapse}
+#adminApp th,#adminApp td{padding:10px;border-bottom:1px solid #333;text-align:left;font-size:13px}
+#adminApp .adm-muted{color:#aaa}
+#adminApp .adm-section{display:none}
+#adminApp .adm-section.active{display:block}
+#shopStatusBanner{display:none}
+#shopStatusBanner.visible{display:block}
+body.admin-mode{background:#090909!important}
+@media(max-width:700px){#adminApp .adm-layout{grid-template-columns:1fr!important}#adminApp .adm-sidebar{display:flex;overflow:auto}#adminApp .adm-tab{white-space:nowrap}#adminApp .adm-table-wrap{overflow:auto}}
+</style>
+<div id="shopStatusBanner" class="max-w-7xl mx-auto mt-4 px-4">
+ <div class="rounded-2xl bg-gray-900 text-white border border-red-500/40 p-4 text-center">
+  <div class="font-black text-lg" id="shopStatusTitle">We’re Temporarily Closed</div>
+  <div class="text-sm text-gray-300 mt-1" id="shopStatusText">Online ordering will resume soon.</div>
+ </div>
+</div>
+<div id="adminApp" style="display:none">
+ <div class="max-w-7xl mx-auto p-4 md:p-8">
+  <header class="flex flex-wrap items-center justify-between gap-3 mb-7">
+   <div><div class="text-xs tracking-[.25em] font-black text-yellow-400">VISHAL TIFFIN SERVICE RUGBY</div><h1 class="text-3xl font-black mt-1">Admin Dashboard</h1><p class="adm-muted text-sm">Manage your live website from one place</p></div>
+   <button id="adminLogout" class="adm-btn ghost" style="display:none" onclick="vtAdminLogout()">Log out</button>
+  </header>
+  <section id="adminLogin" class="max-w-md mx-auto adm-card">
+   <h2 class="text-xl font-black mb-1">Admin sign in</h2><p class="adm-muted text-sm mb-5">Use the email and password you created in Supabase Authentication.</p>
+   <form onsubmit="vtAdminLogin(event)" class="space-y-3">
+    <label class="block text-sm">Email<input id="adminEmail" class="adm-input mt-1" type="email" required autocomplete="username"></label>
+    <label class="block text-sm">Password<input id="adminPassword" class="adm-input mt-1" type="password" required autocomplete="current-password"></label>
+    <button class="adm-btn gold w-full" type="submit">Sign in securely</button><p id="adminLoginMessage" class="text-sm text-red-300"></p>
+   </form>
+  </section>
+  <section id="adminPanel" style="display:none">
+   <div class="adm-layout grid gap-5" style="grid-template-columns:210px 1fr">
+    <nav class="adm-sidebar space-y-2">
+     <button class="adm-tab active" onclick="vtAdminTab('overview',this)">Overview</button>
+     <button class="adm-tab" onclick="vtAdminTab('menu',this)">Menu & Photos</button>
+     <button class="adm-tab" onclick="vtAdminTab('hours',this)">Shop Timings</button>
+     <button class="adm-tab" onclick="vtAdminTab('closures',this)">Holidays</button>
+     <button class="adm-tab" onclick="vtAdminTab('content',this)">Offers & Notices</button>
+    </nav>
+    <main>
+     <section id="adm-overview" class="adm-section active">
+      <div class="grid sm:grid-cols-3 gap-3 mb-5">
+       <div class="adm-card"><div class="adm-muted text-xs">MENU ITEMS</div><div id="admItemCount" class="text-3xl font-black text-yellow-400">—</div></div>
+       <div class="adm-card"><div class="adm-muted text-xs">SHOP STATUS</div><div id="admShopState" class="text-xl font-black mt-2">Loading…</div></div>
+       <div class="adm-card"><div class="adm-muted text-xs">DATABASE</div><div class="text-xl font-black mt-2 text-green-400">Connected</div></div>
+      </div>
+      <div class="adm-card"><h3 class="font-black text-lg">First-time setup</h3><p class="adm-muted text-sm my-2">Import the current website menu, including existing food photos, into Supabase. This only imports when the database menu is empty.</p><button class="adm-btn gold" onclick="vtImportCurrentMenu()">Import current website menu</button><p id="admImportMessage" class="text-sm mt-3 adm-muted"></p></div>
+     </section>
+     <section id="adm-menu" class="adm-section">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4"><div><h2 class="text-2xl font-black">Menu & Photos</h2><p class="adm-muted text-sm">Add dishes, change prices, upload photos or hide items.</p></div><button class="adm-btn gold" onclick="vtOpenItemForm()">＋ Add item</button></div>
+      <div class="adm-card adm-table-wrap"><table><thead><tr><th>Photo</th><th>Item</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody id="admMenuRows"></tbody></table></div>
+     </section>
+     <section id="adm-hours" class="adm-section">
+      <h2 class="text-2xl font-black mb-2">Shop timings</h2><div class="adm-card mb-4">
+       <label class="block text-sm mb-3">Manual shop status<select id="admManualStatus" class="adm-input mt-1"><option value="auto">Automatic schedule</option><option value="open">Force open</option><option value="closed">Force closed</option></select></label>
+       <label class="block text-sm mb-3">Closed message<input id="admClosedMessage" class="adm-input mt-1" value="We’re Temporarily Closed"></label>
+       <button class="adm-btn gold" onclick="vtSaveShopSettings()">Save shop status</button>
+      </div><div class="adm-card"><h3 class="font-black text-lg mb-3">Weekly schedule (UK time)</h3><div id="admHoursRows" class="space-y-2"></div><button class="adm-btn gold mt-4" onclick="vtSaveHours()">Save weekly timings</button></div>
+     </section>
+     <section id="adm-closures" class="adm-section">
+      <h2 class="text-2xl font-black mb-3">Holidays & temporary closures</h2><form class="adm-card grid sm:grid-cols-2 gap-3" onsubmit="vtAddClosure(event)">
+       <label class="text-sm">Closure name<input id="closureTitle" class="adm-input mt-1" required placeholder="e.g. Holiday"></label>
+       <label class="text-sm">Starts (UK local time)<input id="closureStart" type="datetime-local" class="adm-input mt-1" required></label>
+       <label class="text-sm">Ends (UK local time)<input id="closureEnd" type="datetime-local" class="adm-input mt-1" required></label>
+       <div class="flex items-end"><button class="adm-btn gold w-full">Add closure</button></div>
+      </form><div id="admClosureRows" class="space-y-2 mt-4"></div>
+     </section>
+     <section id="adm-content" class="adm-section">
+      <h2 class="text-2xl font-black mb-3">Offers & notices</h2><div class="adm-card space-y-3">
+       <label class="block text-sm">Website notice<textarea id="admNotice" class="adm-input mt-1" rows="3" placeholder="Write a notice for customers"></textarea></label>
+       <label class="block text-sm">Offer / promotion<textarea id="admOffer" class="adm-input mt-1" rows="3" placeholder="Write your current offer"></textarea></label>
+       <button class="adm-btn gold" onclick="vtSaveContent()">Save website content</button><p id="admContentMessage" class="adm-muted text-sm"></p>
+      </div>
+     </section>
+    </main>
+   </div>
+  </section>
+ </div>
+ <div id="admItemModal" class="fixed inset-0 z-[100] bg-black/80 p-4 overflow-auto" style="display:none">
+  <div class="max-w-xl mx-auto my-8 adm-card">
+   <div class="flex justify-between items-center mb-4"><h3 id="admItemFormTitle" class="text-xl font-black">Add menu item</h3><button class="adm-btn ghost" onclick="vtCloseItemForm()">✕</button></div>
+   <form id="admItemForm" onsubmit="vtSaveItem(event)" class="grid sm:grid-cols-2 gap-3">
+    <input id="admItemId" type="hidden">
+    <label class="text-sm">Item name<input id="admItemName" class="adm-input mt-1" required></label>
+    <label class="text-sm">Price (£)<input id="admItemPrice" class="adm-input mt-1" type="number" min="0" step=".01" required></label>
+    <label class="text-sm">Category<input id="admItemCategory" class="adm-input mt-1" list="admCategoryList" required><datalist id="admCategoryList"></datalist></label>
+    <label class="text-sm">Audience<select id="admItemAudience" class="adm-input mt-1"><option value="adult">Adults</option><option value="kids">Kids</option><option value="all">Everyone</option></select></label>
+    <label class="text-sm sm:col-span-2">Description<textarea id="admItemDesc" class="adm-input mt-1" rows="2"></textarea></label>
+    <label class="text-sm sm:col-span-2">Food photo<input id="admItemPhoto" class="adm-input mt-1" type="file" accept="image/jpeg,image/png,image/webp"></label>
+    <label class="text-sm flex items-center gap-2"><input id="admItemAvailable" type="checkbox" checked> Available to order</label>
+    <label class="text-sm flex items-center gap-2"><input id="admItemPopular" type="checkbox"> Mark popular</label>
+    <div class="sm:col-span-2 flex gap-2"><button class="adm-btn gold flex-1">Save item</button><button type="button" class="adm-btn ghost" onclick="vtCloseItemForm()">Cancel</button></div>
+   </form>
+  </div>
+ </div>
+</div>
+<script>
+(function(){
+ const VT_URL="https://vwbyothmbqvzgvcftxlr.supabase.co";
+ const VT_KEY="sb_publishable_W4GzR5YOoR7NK_Uxg6u1rQ_sRDlotzg";
+ const vtSupabase=window.supabase?.createClient(VT_URL,VT_KEY);
+ const adminRoute=location.pathname.replace(/\/+$/,"")==="/admin" || new URLSearchParams(location.search).has("admin");
+ let vtShopOpen=true, vtRows=[], vtCategories=[];
+ const $=id=>document.getElementById(id);
+ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ function msg(id,text,isError=false){const el=$(id);if(el){el.textContent=text;el.style.color=isError?"#fca5a5":"#86efac";}}
+ if(!vtSupabase){console.error("Supabase client library did not load");return;}
+ async function currentUserIsAdmin(){
+  const {data:{user}}=await vtSupabase.auth.getUser(); if(!user)return false;
+  const {data,error}=await vtSupabase.from("admin_users").select("user_id").eq("user_id",user.id).maybeSingle();
+  return !error&&!!data;
+ }
+ window.vtAdminLogin=async function(e){
+  e.preventDefault();msg("adminLoginMessage","Signing in…");
+  const {error}=await vtSupabase.auth.signInWithPassword({email:$("adminEmail").value.trim(),password:$("adminPassword").value});
+  if(error){msg("adminLoginMessage",error.message,true);return;}
+  await vtShowAdmin();
+ };
+ window.vtAdminLogout=async function(){await vtSupabase.auth.signOut();$("adminPanel").style.display="none";$("adminLogout").style.display="none";$("adminLogin").style.display="block";};
+ async function vtShowAdmin(){
+  const ok=await currentUserIsAdmin();
+  if(!ok){await vtSupabase.auth.signOut();msg("adminLoginMessage","This account is not on the admin allow-list. Check admin_users.");return;}
+  $("adminLogin").style.display="none";$("adminPanel").style.display="block";$("adminLogout").style.display="inline-block";
+  await Promise.all([vtLoadAdminMenu(),vtLoadHours(),vtLoadClosures(),vtLoadSettings(),vtLoadContent()]);
+ }
+ if(adminRoute){
+  document.body.classList.add("admin-mode");
+  [...document.body.children].forEach(el=>{if(el.id!=="adminApp"&&el.tagName!=="SCRIPT")el.style.display="none";});
+  $("adminApp").style.display="block";
+  vtSupabase.auth.getSession().then(({data})=>data.session?vtShowAdmin():null);
+  vtSupabase.auth.onAuthStateChange((_event,session)=>{if(session)vtShowAdmin();});
+ }
+ window.vtAdminTab=function(name,button){
+  document.querySelectorAll("#adminApp .adm-tab").forEach(x=>x.classList.remove("active"));button?.classList.add("active");
+  document.querySelectorAll("#adminApp .adm-section").forEach(x=>x.classList.remove("active"));$("adm-"+name).classList.add("active");
+  if(name==="menu")vtLoadAdminMenu();if(name==="closures")vtLoadClosures();
+ };
+ async function vtLoadAdminMenu(){
+  const [{data:cats},{data:items,error}]=await Promise.all([
+   vtSupabase.from("menu_categories").select("*").order("sort_order"),
+   vtSupabase.from("menu_items").select("*,menu_categories(name)").order("sort_order")
+  ]);
+  if(error){console.error(error);return;}
+  vtCategories=cats||[];vtRows=items||[];$("admItemCount").textContent=vtRows.length;
+  $("admCategoryList").innerHTML=vtCategories.map(c=>`<option value="${esc(c.name)}"></option>`).join("");
+  $("admMenuRows").innerHTML=vtRows.map(x=>`<tr><td><img src="${esc(x.image_url)}" style="width:48px;height:48px;object-fit:cover;border-radius:9px" onerror="this.style.display='none'"></td><td><b>${esc(x.name)}</b><div class="adm-muted">${esc(x.description)}</div></td><td>${esc(x.menu_categories?.name||"—")}</td><td>£${Number(x.price).toFixed(2)}</td><td>${x.is_available?"Available":"Hidden"}</td><td><button class="adm-btn ghost" onclick="vtEditItem('${x.id}')">Edit</button> <button class="adm-btn" onclick="vtDeleteItem('${x.id}')">Delete</button></td></tr>`).join("")||`<tr><td colspan="6" class="adm-muted">No menu items yet. Import the current menu from Overview.</td></tr>`;
+ }
+ window.vtOpenItemForm=function(row){
+  $("admItemForm").reset();$("admItemId").value=row?.id||"";$("admItemName").value=row?.name||"";$("admItemPrice").value=row?.price??"";$("admItemCategory").value=row?.menu_categories?.name||"";$("admItemDesc").value=row?.description||"";
+  const m=row?.metadata||{};$("admItemAudience").value=m.aud||"adult";$("admItemAvailable").checked=row?.is_available??true;$("admItemPopular").checked=!!m.popular;$("admItemFormTitle").textContent=row?"Edit menu item":"Add menu item";$("admItemModal").style.display="block";
+ };
+ window.vtCloseItemForm=function(){$("admItemModal").style.display="none";};
+ window.vtEditItem=function(id){const row=vtRows.find(x=>x.id===id);if(row)vtOpenItemForm(row);};
+ async function vtCategoryId(name){
+  let found=vtCategories.find(c=>c.name.toLowerCase()===name.toLowerCase());
+  if(!found){const {data,error}=await vtSupabase.from("menu_categories").insert({name,sort_order:vtCategories.length}).select().single();if(error)throw error;found=data;vtCategories.push(found);}
+  return found.id;
+ }
+ async function vtUploadPhoto(file,path){
+  if(!file)return null;if(file.size>5*1024*1024)throw new Error("Photo must be 5 MB or smaller.");
+  const ext=(file.name.split(".").pop()||"jpg").toLowerCase();const key=`${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const {error}=await vtSupabase.storage.from("menu-photos").upload(key,file,{upsert:true,contentType:file.type});if(error)throw error;
+  return vtSupabase.storage.from("menu-photos").getPublicUrl(key).data.publicUrl;
+ }
+ window.vtSaveItem=async function(e){
+  e.preventDefault();const btn=e.submitter;btn.disabled=true;btn.textContent="Saving…";
+  try{
+   const category=$("admItemCategory").value.trim();const category_id=await vtCategoryId(category);
+   const file=$("admItemPhoto").files[0];let image_url=vtRows.find(x=>x.id===$("admItemId").value)?.image_url||"";
+   if(file)image_url=await vtUploadPhoto(file);
+   const old=vtRows.find(x=>x.id===$("admItemId").value);const metadata={...(old?.metadata||{}),aud:$("admItemAudience").value,popular:$("admItemPopular").checked,veg:true};
+   const payload={name:$("admItemName").value.trim(),price:Number($("admItemPrice").value),description:$("admItemDesc").value.trim(),category_id,image_url,is_available:$("admItemAvailable").checked,metadata};
+   const q=$("admItemId").value?vtSupabase.from("menu_items").update(payload).eq("id",$("admItemId").value):vtSupabase.from("menu_items").insert(payload);
+   const {error}=await q;if(error)throw error;vtCloseItemForm();await vtLoadAdminMenu();msg("admImportMessage","Menu item saved.");
+  }catch(err){alert(err.message||String(err));}
+  finally{btn.disabled=false;btn.textContent="Save item";}
+ };
+ window.vtDeleteItem=async function(id){if(!confirm("Delete this menu item?"))return;const {error}=await vtSupabase.from("menu_items").delete().eq("id",id);if(error)alert(error.message);else vtLoadAdminMenu();};
+ window.vtImportCurrentMenu=async function(){
+  const out=$("admImportMessage");out.textContent="Checking database…";
+  const {count,error:countErr}=await vtSupabase.from("menu_items").select("*",{count:"exact",head:true});if(countErr){out.textContent=countErr.message;return;}
+  if(count>0){out.textContent=`Import skipped: database already contains ${count} menu items. Nothing was overwritten.`;return;}
+  if(!Array.isArray(MENU)||!MENU.length){out.textContent="Current menu data was not found.";return;}
+  if(!confirm(`Import ${MENU.length} existing website items and their photos into Supabase?`))return;
+  try{
+   const catNames=[...new Set(MENU.map(x=>x.cat||"Other"))];
+   for(let i=0;i<catNames.length;i++){await vtCategoryId(catNames[i]);}
+   for(let i=0;i<MENU.length;i++){
+    const x=MENU[i];out.textContent=`Importing ${i+1} of ${MENU.length}: ${x.name}`;
+    let image_url=x.img||"";
+    if(image_url.startsWith("data:")){
+     const blob=await (await fetch(image_url)).blob();const ext=blob.type.includes("webp")?"webp":blob.type.includes("png")?"png":"jpg";
+     const file=new File([blob],`menu-${x.id}.${ext}`,{type:blob.type||"image/jpeg"});
+     image_url=await vtUploadPhoto(file);
+    }
+    const category_id=await vtCategoryId(x.cat||"Other");
+    const metadata={legacyId:x.id,aud:x.aud||"adult",veg:x.veg!==false,popular:!!x.popular,combo:!!x.combo};
+    const {error}=await vtSupabase.from("menu_items").insert({name:x.name,description:x.desc||"",price:Number(x.price)||0,image_url,category_id,is_available:true,is_featured:!!x.popular,sort_order:i,metadata});
+    if(error)throw new Error(`${x.name}: ${error.message}`);
+   }
+   out.textContent=`Import complete! ${MENU.length} items imported. Refresh the customer website to load the database menu.`;
+   await vtLoadAdminMenu();
+  }catch(err){out.textContent="Import stopped: "+(err.message||String(err));}
+ };
+ async function vtLoadHours(){
+  const {data,error}=await vtSupabase.from("opening_hours").select("*").order("day_of_week");if(error){console.error(error);return;}
+  const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  $("admHoursRows").innerHTML=(data||[]).map(x=>`<div class="grid grid-cols-[100px_1fr_1fr_80px] gap-2 items-center"><b class="text-sm">${days[x.day_of_week]}</b><input class="adm-input" type="time" id="vtOpen${x.day_of_week}" value="${x.opens_at||"10:00"}" ${x.is_closed?"disabled":""}><input class="adm-input" type="time" id="vtClose${x.day_of_week}" value="${x.closes_at||"22:00"}" ${x.is_closed?"disabled":""}><label class="text-xs flex gap-1 items-center"><input type="checkbox" id="vtOff${x.day_of_week}" ${x.is_closed?"checked":""} onchange="vtToggleDay(${x.day_of_week},this.checked)"> Closed</label></div>`).join("");
+ }
+ window.vtToggleDay=function(day,closed){$("vtOpen"+day).disabled=closed;$("vtClose"+day).disabled=closed;};
+ window.vtSaveHours=async function(){
+  const rows=[];for(let d=0;d<7;d++){const closed=$("vtOff"+d).checked;rows.push({day_of_week:d,is_closed:closed,opens_at:closed?null:$("vtOpen"+d).value,closes_at:closed?null:$("vtClose"+d).value});}
+  const {error}=await vtSupabase.from("opening_hours").upsert(rows);if(error)alert(error.message);else alert("Weekly schedule saved.");
+ };
+ async function vtLoadSettings(){
+  const {data,error}=await vtSupabase.from("shop_settings").select("*").eq("id",1).single();if(error){console.error(error);return;}
+  $("admManualStatus").value=data.manual_status;$("admClosedMessage").value=data.closed_message||"We’re Temporarily Closed";
+ }
+ window.vtSaveShopSettings=async function(){
+  const {error}=await vtSupabase.from("shop_settings").update({manual_status:$("admManualStatus").value,closed_message:$("admClosedMessage").value}).eq("id",1);
+  if(error)alert(error.message);else alert("Shop settings saved.");
+ };
+ async function vtLoadClosures(){
+  const {data,error}=await vtSupabase.from("shop_closures").select("*").order("starts_at");if(error){console.error(error);return;}
+  $("admClosureRows").innerHTML=(data||[]).map(x=>`<div class="adm-card flex justify-between items-center gap-3"><div><b>${esc(x.title)}</b><div class="adm-muted text-xs">${new Date(x.starts_at).toLocaleString()} – ${new Date(x.ends_at).toLocaleString()}</div></div><button class="adm-btn" onclick="vtDeleteClosure('${x.id}')">Remove</button></div>`).join("")||`<p class="adm-muted">No extra closures scheduled.</p>`;
+ }
+ window.vtAddClosure=async function(e){e.preventDefault();const start=new Date($("closureStart").value),end=new Date($("closureEnd").value);if(end<=start){alert("End time must be after start time.");return;}
+  const {error}=await vtSupabase.from("shop_closures").insert({title:$("closureTitle").value,starts_at:start.toISOString(),ends_at:end.toISOString()});if(error)alert(error.message);else{e.target.reset();vtLoadClosures();}};
+ window.vtDeleteClosure=async function(id){if(!confirm("Remove this closure?"))return;const {error}=await vtSupabase.from("shop_closures").delete().eq("id",id);if(error)alert(error.message);else vtLoadClosures();};
+ async function vtLoadContent(){
+  const {data,error}=await vtSupabase.from("site_content").select("*");if(error){console.error(error);return;}
+  const m=Object.fromEntries((data||[]).map(x=>[x.content_key,x.content_value]));
+  $("admNotice").value=m.notice?.text||"";$("admOffer").value=m.offer?.text||"";
+ }
+ window.vtSaveContent=async function(){
+  const rows=[{content_key:"notice",content_value:{text:$("admNotice").value}},{content_key:"offer",content_value:{text:$("admOffer").value}}];
+  const {error}=await vtSupabase.from("site_content").upsert(rows);if(error)msg("admContentMessage",error.message,true);else msg("admContentMessage","Saved. Customer pages will show the updated content after refresh.");
+ };
+ function ukNowParts(date){const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",weekday:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(date);return Object.fromEntries(parts.map(p=>[p.type,p.value]));}
+ async function vtCheckShop(){
+  const [{data:settings},{data:hours},{data:closures}]=await Promise.all([
+   vtSupabase.from("shop_settings").select("*").eq("id",1).maybeSingle(),
+   vtSupabase.from("opening_hours").select("*"),
+   vtSupabase.from("shop_closures").select("*").eq("is_active",true)
+  ]);
+  const now=new Date(),p=ukNowParts(now),day=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(p.weekday),mins=Number(p.hour)*60+Number(p.minute);
+  let open=true,reason="";
+  const active=(closures||[]).some(c=>now>=new Date(c.starts_at)&&now<new Date(c.ends_at));
+  if(active){open=false;reason=settings?.closed_message||"We’re Temporarily Closed";}
+  else if(settings?.manual_status==="closed"){open=false;reason=settings.closed_message;}
+  else if(settings?.manual_status==="open"){open=true;}
+  else{
+   const h=(hours||[]).find(x=>x.day_of_week===day);
+   open=!!h&&!h.is_closed&&mins>=Number((h.opens_at||"00:00").slice(0,2))*60+Number((h.opens_at||"00:00").slice(3,5))&&mins<Number((h.closes_at||"00:00").slice(0,2))*60+Number((h.closes_at||"00:00").slice(3,5));
+   if(!open)reason=settings?.closed_message||"We’re Temporarily Closed";
+  }
+  vtShopOpen=open;
+  const banner=$("shopStatusBanner");if(banner){banner.classList.toggle("visible",!open);$("shopStatusTitle").textContent=reason||"We’re Temporarily Closed";$("shopStatusText").textContent="Online ordering will resume soon.";}
+  if(adminRoute&&$("admShopState"))$("admShopState").textContent=open?"OPEN":"CLOSED";
+  if(!adminRoute){
+   document.querySelectorAll('#menuGrid button, .quick-add-btn').forEach(b=>{if(!open){b.disabled=true;b.dataset.shopClosed="1";b.style.opacity=".45";b.title="Online ordering is temporarily closed";}else if(b.dataset.shopClosed){b.disabled=false;delete b.dataset.shopClosed;b.style.opacity="";b.title="";}});
+   const originalStart=window.startCheckout;
+   if(originalStart&&!originalStart.__vtWrapped){const wrap=function(){if(!vtShopOpen){alert("We’re Temporarily Closed. Online ordering will resume soon.");return;}return originalStart.apply(this,arguments);};wrap.__vtWrapped=true;window.startCheckout=wrap;}
+  }
+ }
+ async function vtLoadPublicMenu(){
+  const {data,error}=await vtSupabase.from("menu_items").select("*,menu_categories(name)").eq("is_available",true).order("sort_order");
+  if(error||!data?.length)return;
+  const mapped=data.map((x,i)=>{const m=x.metadata||{};return {id:Number(m.legacyId)||("db-"+x.id),cat:x.menu_categories?.name||"Other",name:x.name,desc:x.description||"",price:Number(x.price),img:x.image_url||fallbackSvg(x.name),veg:m.veg!==false,aud:m.aud||"adult",popular:!!m.popular,combo:!!m.combo,dbId:x.id};});
+  MENU.splice(0,MENU.length,...mapped);activeCat="All";activeAud="all";renderAudTabs();renderCategories();renderMenu();
+ }
+ if(!adminRoute){
+  const header=document.querySelector("header");
+  if(header&&$("shopStatusBanner"))header.after($("shopStatusBanner"));
+  // Guard the cart actions as well as the visible buttons, so a closed shop cannot accept an order.
+  const originalAdd=window.add;
+  if(originalAdd&&!originalAdd.__vtWrapped){const wrappedAdd=function(){if(!vtShopOpen){alert("We’re Temporarily Closed. Online ordering will resume soon.");return;}return originalAdd.apply(this,arguments);};wrappedAdd.__vtWrapped=true;window.add=wrappedAdd;}
+  const originalCombo=window.addCombo;
+  if(originalCombo&&!originalCombo.__vtWrapped){const wrappedCombo=function(){if(!vtShopOpen){alert("We’re Temporarily Closed. Online ordering will resume soon.");return;}return originalCombo.apply(this,arguments);};wrappedCombo.__vtWrapped=true;window.addCombo=wrappedCombo;}
+  vtLoadPublicMenu();vtCheckShop();setInterval(vtCheckShop,60000);
+  vtSupabase.from("site_content").select("*").then(({data})=>{const m=Object.fromEntries((data||[]).map(x=>[x.content_key,x.content_value]));const notice=m.notice?.text||"";if(notice){const el=document.createElement("div");el.className="max-w-7xl mx-auto px-4 mt-3";el.innerHTML=`<div class="rounded-xl bg-amber-50 border border-amber-200 text-amber-900 p-3 text-sm font-semibold">${esc(notice)}</div>`;$("shopStatusBanner")?.after(el);}});
+ }
+})();
+</script>
+
 </body>
 </html>
