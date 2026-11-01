@@ -1042,7 +1042,7 @@ body.admin-mode{background:#090909!important}
        <div class="adm-card"><div class="adm-muted text-xs">SHOP STATUS</div><div id="admShopState" class="text-xl font-black mt-2">Loading…</div></div>
        <div class="adm-card"><div class="adm-muted text-xs">DATABASE</div><div class="text-xl font-black mt-2 text-green-400">Connected</div></div>
       </div>
-      <div class="adm-card"><h3 class="font-black text-lg">First-time setup</h3><p class="adm-muted text-sm my-2">Import the current website menu, including existing food photos, into Supabase. This only imports when the database menu is empty.</p><button class="adm-btn gold" onclick="vtImportCurrentMenu()">Import current website menu</button><p id="admImportMessage" class="text-sm mt-3 adm-muted"></p></div>
+      <div class="adm-card"><h3 class="font-black text-lg">First-time setup</h3><p class="adm-muted text-sm my-2">Safely sync any missing items from the original website menu into Supabase. Existing items are kept and never overwritten.</p><button class="adm-btn gold" onclick="vtImportCurrentMenu()">Sync missing original menu items</button><p id="admImportMessage" class="text-sm mt-3 adm-muted"></p></div>
      </section>
      <section id="adm-menu" class="adm-section">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4"><div><h2 class="text-2xl font-black">Menu & Photos</h2><p class="adm-muted text-sm">Add dishes, change prices, upload photos or hide items.</p></div><button class="adm-btn gold" onclick="vtOpenItemForm()">＋ Add item</button></div>
@@ -1134,14 +1134,17 @@ body.admin-mode{background:#090909!important}
   if(name==="menu")vtLoadAdminMenu();if(name==="closures")vtLoadClosures();
  };
  async function vtLoadAdminMenu(){
-  const [{data:cats},{data:items,error}]=await Promise.all([
+  const [{data:cats,error:catError},{data:items,error}]=await Promise.all([
    vtSupabase.from("menu_categories").select("*").order("sort_order"),
    vtSupabase.from("menu_items").select("*,menu_categories(name)").order("sort_order")
   ]);
-  if(error){console.error(error);return;}
-  vtCategories=cats||[];vtRows=items||[];$("admItemCount").textContent=vtRows.length;
+  if(error||catError){console.error(error||catError);msg("admImportMessage",(error||catError).message,true);return;}
+  vtCategories=cats||[];
+  // Retain deleted rows as tombstones so a later sync cannot restore deleted items.
+  vtRows=(items||[]).filter(x=>x.metadata?.deleted!==true);
+  $("admItemCount").textContent=vtRows.length;
   $("admCategoryList").innerHTML=vtCategories.map(c=>`<option value="${esc(c.name)}"></option>`).join("");
-  $("admMenuRows").innerHTML=vtRows.map(x=>`<tr><td><img src="${esc(x.image_url)}" style="width:48px;height:48px;object-fit:cover;border-radius:9px" onerror="this.style.display='none'"></td><td><b>${esc(x.name)}</b><div class="adm-muted">${esc(x.description)}</div></td><td>${esc(x.menu_categories?.name||"—")}</td><td>£${Number(x.price).toFixed(2)}</td><td>${x.is_available?"Available":"Hidden"}</td><td><button class="adm-btn ghost" onclick="vtEditItem('${x.id}')">Edit</button> <button class="adm-btn" onclick="vtDeleteItem('${x.id}')">Delete</button></td></tr>`).join("")||`<tr><td colspan="6" class="adm-muted">No menu items yet. Import the current menu from Overview.</td></tr>`;
+  $("admMenuRows").innerHTML=vtRows.map(x=>`<tr><td><img src="${esc(x.image_url)}" style="width:48px;height:48px;object-fit:cover;border-radius:9px" onerror="this.style.display='none'"></td><td><b>${esc(x.name)}</b><div class="adm-muted">${esc(x.description)}</div></td><td>${esc(x.menu_categories?.name||"—")}</td><td>£${Number(x.price).toFixed(2)}</td><td>${x.is_available?"Available":"Hidden"}</td><td><button class="adm-btn ghost" onclick="vtEditItem('${x.id}')">Edit</button> <button class="adm-btn" onclick="vtDeleteItem('${x.id}')">Delete</button></td></tr>`).join("")||`<tr><td colspan="6" class="adm-muted">No menu items yet. Use the sync option in Overview to restore the original menu.</td></tr>`;
  }
  window.vtOpenItemForm=function(row){
   $("admItemForm").reset();$("admItemId").value=row?.id||"";$("admItemName").value=row?.name||"";$("admItemPrice").value=row?.price??"";$("admItemCategory").value=row?.menu_categories?.name||"";$("admItemDesc").value=row?.description||"";
@@ -1173,32 +1176,51 @@ body.admin-mode{background:#090909!important}
   }catch(err){alert(err.message||String(err));}
   finally{btn.disabled=false;btn.textContent="Save item";}
  };
- window.vtDeleteItem=async function(id){if(!confirm("Delete this menu item?"))return;const {error}=await vtSupabase.from("menu_items").delete().eq("id",id);if(error)alert(error.message);else vtLoadAdminMenu();};
+ window.vtDeleteItem=async function(id){
+  if(!confirm("Delete this menu item?"))return;
+  const row=vtRows.find(x=>x.id===id);if(!row)return;
+  // Soft delete: preserve a tombstone to prevent legacy menu fallback from resurrecting it.
+  const metadata={...(row.metadata||{}),deleted:true};
+  const {error}=await vtSupabase.from("menu_items").update({is_available:false,metadata}).eq("id",id);
+  if(error)alert(error.message);else await vtLoadAdminMenu();
+ };
  window.vtImportCurrentMenu=async function(){
-  const out=$("admImportMessage");out.textContent="Checking database…";
-  const {count,error:countErr}=await vtSupabase.from("menu_items").select("*",{count:"exact",head:true});if(countErr){out.textContent=countErr.message;return;}
-  if(count>0){out.textContent=`Import skipped: database already contains ${count} menu items. Nothing was overwritten.`;return;}
-  if(!Array.isArray(MENU)||!MENU.length){out.textContent="Current menu data was not found.";return;}
-  if(!confirm(`Import ${MENU.length} existing website items and their photos into Supabase?`))return;
+  const out=$("admImportMessage");out.textContent="Checking which original menu items are missing…";
+  if(!Array.isArray(MENU)||!MENU.length){out.textContent="Original website menu data was not found.";return;}
   try{
-   const catNames=[...new Set(MENU.map(x=>x.cat||"Other"))];
-   for(let i=0;i<catNames.length;i++){await vtCategoryId(catNames[i]);}
-   for(let i=0;i<MENU.length;i++){
-    const x=MENU[i];out.textContent=`Importing ${i+1} of ${MENU.length}: ${x.name}`;
+   // Merge-only import: never clear or replace existing Supabase records.
+   const {data:existing,error:readError}=await vtSupabase.from("menu_items").select("id,metadata");
+   if(readError)throw readError;
+   const existingLegacyIds=new Set((existing||[]).map(row=>row.metadata?.legacyId)
+    .filter(value=>value!==undefined&&value!==null).map(String));
+   const missing=MENU.filter(item=>!existingLegacyIds.has(String(item.id)));
+   if(!missing.length){
+    out.textContent=`Sync complete: all ${MENU.length} original menu items are already in the database. Existing products were left unchanged.`;
+    await vtLoadAdminMenu();return;
+   }
+   if(!confirm(`Add ${missing.length} missing original menu items to Supabase? Existing database items will be kept unchanged.`))return;
+   for(const name of [...new Set(missing.map(x=>x.cat||"Other"))])await vtCategoryId(name);
+   let added=0;
+   for(let i=0;i<missing.length;i++){
+    const x=missing[i];out.textContent=`Adding missing item ${i+1} of ${missing.length}: ${x.name}`;
     let image_url=x.img||"";
     if(image_url.startsWith("data:")){
-     const blob=await (await fetch(image_url)).blob();const ext=blob.type.includes("webp")?"webp":blob.type.includes("png")?"png":"jpg";
-     const file=new File([blob],`menu-${x.id}.${ext}`,{type:blob.type||"image/jpeg"});
-     image_url=await vtUploadPhoto(file);
+     const blob=await (await fetch(image_url)).blob();
+     const ext=blob.type.includes("webp")?"webp":blob.type.includes("png")?"png":"jpg";
+     image_url=await vtUploadPhoto(new File([blob],`menu-${x.id}.${ext}`,{type:blob.type||"image/jpeg"}));
     }
     const category_id=await vtCategoryId(x.cat||"Other");
     const metadata={legacyId:x.id,aud:x.aud||"adult",veg:x.veg!==false,popular:!!x.popular,combo:!!x.combo};
-    const {error}=await vtSupabase.from("menu_items").insert({name:x.name,description:x.desc||"",price:Number(x.price)||0,image_url,category_id,is_available:true,is_featured:!!x.popular,sort_order:i,metadata});
+    const {error}=await vtSupabase.from("menu_items").insert({
+     name:x.name,description:x.desc||"",price:Number(x.price)||0,image_url,category_id,
+     is_available:true,is_featured:!!x.popular,sort_order:Number(x.id)||added,metadata
+    });
     if(error)throw new Error(`${x.name}: ${error.message}`);
+    added++;
    }
-   out.textContent=`Import complete! ${MENU.length} items imported. Refresh the customer website to load the database menu.`;
+   out.textContent=`Sync complete! Added ${added} missing original items. All existing database items were preserved.`;
    await vtLoadAdminMenu();
-  }catch(err){out.textContent="Import stopped: "+(err.message||String(err));}
+  }catch(err){out.textContent="Sync stopped: "+(err.message||String(err));}
  };
  async function vtLoadHours(){
   const {data,error}=await vtSupabase.from("opening_hours").select("*").order("day_of_week");if(error){console.error(error);return;}
@@ -1262,10 +1284,23 @@ body.admin-mode{background:#090909!important}
   }
  }
  async function vtLoadPublicMenu(){
-  const {data,error}=await vtSupabase.from("menu_items").select("*,menu_categories(name)").eq("is_available",true).order("sort_order");
-  if(error||!data?.length)return;
-  const mapped=data.map((x,i)=>{const m=x.metadata||{};return {id:Number(m.legacyId)||("db-"+x.id),cat:x.menu_categories?.name||"Other",name:x.name,desc:x.description||"",price:Number(x.price),img:x.image_url||fallbackSvg(x.name),veg:m.veg!==false,aud:m.aud||"adult",popular:!!m.popular,combo:!!m.combo,dbId:x.id};});
-  MENU.splice(0,MENU.length,...mapped);activeCat="All";activeAud="all";renderAudTabs();renderCategories();renderMenu();
+  const {data,error}=await vtSupabase.from("menu_items").select("*,menu_categories(name)").order("sort_order");
+  if(error){console.error("Could not load database menu:",error);return;}
+  if(!data?.length)return;
+  const rows=data||[];
+  // legacyId rows (including deleted tombstones) represent their matching built-in item.
+  const representedLegacyIds=new Set(rows.map(x=>x.metadata?.legacyId)
+   .filter(value=>value!==undefined&&value!==null).map(String));
+  const originalFallback=MENU.filter(item=>!representedLegacyIds.has(String(item.id)));
+  const databaseItems=rows.filter(x=>x.is_available&&x.metadata?.deleted!==true).map(x=>{
+   const m=x.metadata||{};
+   return {id:Number(m.legacyId)||("db-"+x.id),cat:x.menu_categories?.name||"Other",name:x.name,
+    desc:x.description||"",price:Number(x.price),img:x.image_url||fallbackSvg(x.name),
+    veg:m.veg!==false,aud:m.aud||"adult",popular:!!m.popular,combo:!!m.combo,dbId:x.id};
+  });
+  // Merge, never replace the built-in menu with a partially populated database.
+  MENU.splice(0,MENU.length,...originalFallback,...databaseItems);
+  activeCat="All";activeAud="all";renderAudTabs();renderCategories();renderMenu();
  }
  if(!adminRoute){
   const header=document.querySelector("header");
