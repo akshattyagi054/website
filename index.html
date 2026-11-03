@@ -1076,8 +1076,8 @@ body.admin-mode{background:#090909!important}
      <button class="adm-tab active" onclick="vtAdminTab('overview',this)">Overview</button>
      <button class="adm-tab" onclick="vtAdminTab('menu',this)">Menu & Photos</button>
      <button class="adm-tab" onclick="vtAdminTab('hours',this)">Shop Timings</button>
-     <button class="adm-tab" onclick="vtAdminTab('closures',this)">Holidays</button>
-     <button class="adm-tab" onclick="vtAdminTab('content',this)">Offers & Notices</button>
+     
+     
     </nav>
     <main>
      <section id="adm-overview" class="adm-section active">
@@ -1103,23 +1103,15 @@ body.admin-mode{background:#090909!important}
        <label class="block text-sm mb-3">Closed message<input id="admClosedMessage" class="adm-input mt-1" value="We’re Temporarily Closed"></label>
        <button class="adm-btn gold" onclick="vtSaveShopSettings()">Save shop status</button>
       </div><div class="adm-card"><h3 class="font-black text-lg mb-3">Weekly schedule (UK time)</h3><div id="admHoursRows" class="space-y-2"></div><button class="adm-btn gold mt-4" onclick="vtSaveHours()">Save weekly timings</button></div>
-     </section>
-     <section id="adm-closures" class="adm-section">
-      <h2 class="text-2xl font-black mb-3">Holidays & temporary closures</h2><form class="adm-card grid sm:grid-cols-2 gap-3" onsubmit="vtAddClosure(event)">
-       <label class="text-sm">Closure name<input id="closureTitle" class="adm-input mt-1" required placeholder="e.g. Holiday"></label>
-       <label class="text-sm">Starts (UK local time)<input id="closureStart" type="datetime-local" class="adm-input mt-1" required></label>
-       <label class="text-sm">Ends (UK local time)<input id="closureEnd" type="datetime-local" class="adm-input mt-1" required></label>
-       <div class="flex items-end"><button class="adm-btn gold w-full">Add closure</button></div>
-      </form><div id="admClosureRows" class="space-y-2 mt-4"></div>
-     </section>
-     <section id="adm-content" class="adm-section">
-      <h2 class="text-2xl font-black mb-3">Offers & notices</h2><div class="adm-card space-y-3">
-       <label class="block text-sm">Website notice<textarea id="admNotice" class="adm-input mt-1" rows="3" placeholder="Write a notice for customers"></textarea></label>
-       <label class="block text-sm">Offer / promotion<textarea id="admOffer" class="adm-input mt-1" rows="3" placeholder="Write your current offer"></textarea></label>
-       <button class="adm-btn gold" onclick="vtSaveContent()">Save website content</button><p id="admContentMessage" class="adm-muted text-sm"></p>
+      <div class="adm-card mt-4 space-y-3">
+       <div><h3 class="font-black text-lg">Weekly day-off popup message</h3><p class="adm-muted text-sm mt-1">Edit the wording shown in the same large closed-shop popup. Weekday names update automatically.</p></div>
+       <label class="block text-sm">Popup heading<input id="weeklyClosedTitleInput" class="adm-input mt-1" value="We’re closed on {closedDay}"></label>
+       <label class="block text-sm">Popup message<textarea id="weeklyClosedMessageInput" class="adm-input mt-1" rows="3">It’s our weekly day off. We’ll be back open on {nextOpenDay}, and you can place your order again then.</textarea></label>
+       <p class="adm-muted text-xs">Placeholders: <b>{closedDay}</b> = current closed weekday; <b>{nextOpenDay}</b> = next day the shop opens.</p>
+       <button class="adm-btn gold" onclick="vtSaveWeeklyClosedCopy()">Save popup message</button><p id="weeklyClosedCopyStatus" class="adm-muted text-sm"></p>
       </div>
      </section>
-    </main>
+     </main>
    </div>
   </section>
  </div>
@@ -1168,7 +1160,7 @@ body.admin-mode{background:#090909!important}
   const ok=await currentUserIsAdmin();
   if(!ok){await vtSupabase.auth.signOut();msg("adminLoginMessage","This account is not on the admin allow-list. Check admin_users.");return;}
   $("adminLogin").style.display="none";$("adminPanel").style.display="block";$("adminLogout").style.display="inline-block";
-  await Promise.all([vtLoadAdminMenu(),vtLoadHours(),vtLoadClosures(),vtLoadSettings(),vtLoadContent()]);
+  await Promise.all([vtLoadAdminMenu(),vtLoadHours(),vtLoadSettings(),vtLoadWeeklyClosedCopy()]);
  }
  if(adminRoute){
   document.body.classList.add("admin-mode");
@@ -1180,7 +1172,7 @@ body.admin-mode{background:#090909!important}
  window.vtAdminTab=function(name,button){
   document.querySelectorAll("#adminApp .adm-tab").forEach(x=>x.classList.remove("active"));button?.classList.add("active");
   document.querySelectorAll("#adminApp .adm-section").forEach(x=>x.classList.remove("active"));$("adm-"+name).classList.add("active");
-  if(name==="menu")vtLoadAdminMenu();if(name==="closures")vtLoadClosures();
+  if(name==="menu")vtLoadAdminMenu();if(name==="hours")vtLoadHours();
  };
  async function vtLoadAdminMenu(){
   const [{data:cats},{data:items,error}]=await Promise.all([
@@ -1269,6 +1261,25 @@ body.admin-mode{background:#090909!important}
   const {data,error}=await vtSupabase.from("shop_settings").select("*").eq("id",1).single();if(error){console.error(error);return;}
   $("admManualStatus").value=data.manual_status;$("admClosedMessage").value=data.closed_message||"We’re Temporarily Closed";
  }
+ async function vtLoadWeeklyClosedCopy(){
+  const {data,error}=await vtSupabase.from("site_content").select("*").in("content_key",["weekly_closed_title","weekly_closed_message"]);
+  if(error){console.error("Could not load weekly closed popup text:",error);return;}
+  const m=Object.fromEntries((data||[]).map(x=>[x.content_key,x.content_value]));
+  $("weeklyClosedTitleInput").value=m.weekly_closed_title?.text||"We’re closed on {closedDay}";
+  $("weeklyClosedMessageInput").value=m.weekly_closed_message?.text||"It’s our weekly day off. We’ll be back open on {nextOpenDay}, and you can place your order again then.";
+ }
+ window.vtSaveWeeklyClosedCopy=async function(){
+  const title=$("weeklyClosedTitleInput").value.trim(),message=$("weeklyClosedMessageInput").value.trim();
+  if(!title||!message){msg("weeklyClosedCopyStatus","Please enter both the popup heading and message.",true);return;}
+  const rows=[
+   {content_key:"weekly_closed_title",content_value:{text:title}},
+   {content_key:"weekly_closed_message",content_value:{text:message}}
+  ];
+  const {error}=await vtSupabase.from("site_content").upsert(rows);
+  if(error){msg("weeklyClosedCopyStatus",error.message,true);return;}
+  await vtCheckShop();
+  msg("weeklyClosedCopyStatus","Saved. The website popup will use your updated wording.",false);
+ };
  window.vtSaveShopSettings=async function(){
   const {error}=await vtSupabase.from("shop_settings").update({manual_status:$("admManualStatus").value,closed_message:$("admClosedMessage").value}).eq("id",1);
   if(error)alert(error.message);else alert("Shop settings saved.");
@@ -1314,14 +1325,16 @@ body.admin-mode{background:#090909!important}
  };
  function ukNowParts(date){const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",weekday:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(date);return Object.fromEntries(parts.map(p=>[p.type,p.value]));}
  async function vtCheckShop(){
-  const [settingsResult,hoursResult,closuresResult]=await Promise.all([
+  const [settingsResult,hoursResult,closuresResult,copyResult]=await Promise.all([
    vtSupabase.from("shop_settings").select("*").eq("id",1).maybeSingle(),
    vtSupabase.from("opening_hours").select("*"),
-   vtSupabase.from("shop_closures").select("*").eq("is_active",true)
+   vtSupabase.from("shop_closures").select("*").eq("is_active",true),
+   vtSupabase.from("site_content").select("*").in("content_key",["weekly_closed_title","weekly_closed_message"])
   ]);
   const settings=settingsResult.data,hours=hoursResult.data,closures=closuresResult.data;
-  if(settingsResult.error||hoursResult.error||closuresResult.error){
-   console.error("Shop status could not be loaded:",settingsResult.error||hoursResult.error||closuresResult.error);
+  const copyMap=Object.fromEntries((copyResult.data||[]).map(x=>[x.content_key,x.content_value]));
+  if(settingsResult.error||hoursResult.error||closuresResult.error||copyResult.error){
+   console.error("Shop status could not be loaded:",settingsResult.error||hoursResult.error||closuresResult.error||copyResult.error);
    return;
   }
   const now=new Date(),p=ukNowParts(now),day=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(p.weekday),mins=Number(p.hour)*60+Number(p.minute);
@@ -1344,14 +1357,18 @@ body.admin-mode{background:#090909!important}
    const h=todayHours;
    open=!!h&&!h.is_closed&&mins>=Number((h.opens_at||"00:00").slice(0,2))*60+Number((h.opens_at||"00:00").slice(3,5))&&mins<Number((h.closes_at||"00:00").slice(0,2))*60+Number((h.closes_at||"00:00").slice(3,5));
    if(!open&&h?.is_closed){
-    reason=`We’re closed on ${dayNames[day]}`;
+    const closedDay=dayNames[day];
     let nextOpenDay=null;
     for(let offset=1;offset<=7;offset++){
      const candidate=(day+offset)%7;
      const candidateHours=(hours||[]).find(x=>Number(x.day_of_week)===candidate);
      if(candidateHours&&!candidateHours.is_closed){nextOpenDay=candidate;break;}
     }
-    statusText=nextOpenDay===null?"Online ordering will resume when we reopen.":`It’s our weekly day off. We’ll be back open ${dayNames[nextOpenDay]}, and you can order again then.`;
+    const nextDayName=nextOpenDay===null?null:dayNames[nextOpenDay];
+    const titleTemplate=copyMap.weekly_closed_title?.text||"We’re closed on {closedDay}";
+    const messageTemplate=copyMap.weekly_closed_message?.text||"It’s our weekly day off. We’ll be back open on {nextOpenDay}, and you can place your order again then.";
+    reason=titleTemplate.replaceAll("{closedDay}",closedDay).replaceAll("{nextOpenDay}",nextDayName||"our next opening day");
+    statusText=nextDayName===null?"Online ordering will resume when we reopen.":messageTemplate.replaceAll("{closedDay}",closedDay).replaceAll("{nextOpenDay}",nextDayName);
    }else if(!open){reason=settings?.closed_message||"We’re Temporarily Closed";}
   }
   vtShopOpen=open;
