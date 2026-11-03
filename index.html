@@ -290,7 +290,7 @@ button, .category-card, #menuGrid article, a[href], .quick-pick-card {
 <section class="hero text-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 grid lg:grid-cols-2 gap-12 items-center">
     <div>
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-sm font-semibold">🚚 £1.50 delivery on orders £20 or less · FREE delivery above £20 · Closed every Tuesday</div>
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-sm font-semibold">🚚 £1.50 delivery on orders £20 or less · FREE delivery above £20 · <span id="weeklyClosedHero">Closed every Tuesday</span></div>
       <h1 class="mt-6 text-5xl md:text-7xl font-black leading-[.98] tracking-tight">Vishal Tiffin Service.<br><span class="text-red-400">Rugby.</span></h1>
       <p class="mt-6 text-lg md:text-xl text-white/70 max-w-xl">Authentic Indian food, Chinese favourites and kids meals, freshly prepared and delivered to your home in Rugby.</p>
       <div class="mt-8 flex flex-wrap gap-3">
@@ -348,14 +348,14 @@ button, .category-card, #menuGrid article, a[href], .quick-pick-card {
       <div><div class="text-3xl">🚚</div><h3 class="font-black text-xl mt-3">Delivery</h3><p class="text-white/60 mt-2">£1.50 delivery on orders £20 or less · FREE delivery above £20.</p></div>
       <div><div class="text-3xl">📞</div><h3 class="font-black text-xl mt-3">Call / WhatsApp</h3><p class="text-white/60 mt-2">07733 838621</p></div>
       <div><div class="text-3xl">🍽️</div><h3 class="font-black text-xl mt-3">Food</h3><p class="text-white/60 mt-2">Indian · Chinese · Kids favourites</p></div>
-      <div><div class="text-3xl">🕘</div><h3 class="font-black text-xl mt-3">Closed on Tuesdays</h3><p class="text-white/60 mt-2">Open other days: 9:00 AM – 10:30 PM</p></div>
+      <div><div class="text-3xl">🕘</div><h3 id="weeklyClosedCardTitle" class="font-black text-xl mt-3">Closed on Tuesdays</h3><p id="weeklyClosedCardText" class="text-white/60 mt-2">Open other days: 9:00 AM – 10:30 PM</p></div>
     </div>
   </div>
 </section>
 
 <footer class="bg-white border-t border-gray-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-4 justify-between text-sm text-gray-500">
-    <span>© 2026 Vishal Tiffin Service Rugby. All rights reserved.</span><span>Closed every Tuesday · Kitchen: 9:00 AM – 10:30 PM on other days · £1.50 delivery on orders £20 or less · FREE above £20 · Order: 07733 838621</span>
+    <span>© 2026 Vishal Tiffin Service Rugby. All rights reserved.</span><span><span id="weeklyClosedFooter">Closed every Tuesday</span> · Kitchen: 9:00 AM – 10:30 PM on other days · £1.50 delivery on orders £20 or less · FREE above £20 · Order: 07733 838621</span>
   </div>
 </footer>
 
@@ -1263,7 +1263,7 @@ body.admin-mode{background:#090909!important}
  window.vtToggleDay=function(day,closed){$("vtOpen"+day).disabled=closed;$("vtClose"+day).disabled=closed;};
  window.vtSaveHours=async function(){
   const rows=[];for(let d=0;d<7;d++){const closed=$("vtOff"+d).checked;rows.push({day_of_week:d,is_closed:closed,opens_at:closed?null:$("vtOpen"+d).value,closes_at:closed?null:$("vtClose"+d).value});}
-  const {error}=await vtSupabase.from("opening_hours").upsert(rows);if(error)alert(error.message);else alert("Weekly schedule saved.");
+  const {error}=await vtSupabase.from("opening_hours").upsert(rows);if(error)alert(error.message);else{await vtCheckShop();alert("Weekly schedule saved. The customer-facing closed-day message has been updated.");}
  };
  async function vtLoadSettings(){
   const {data,error}=await vtSupabase.from("shop_settings").select("*").eq("id",1).single();if(error){console.error(error);return;}
@@ -1325,18 +1325,37 @@ body.admin-mode{background:#090909!important}
    return;
   }
   const now=new Date(),p=ukNowParts(now),day=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(p.weekday),mins=Number(p.hour)*60+Number(p.minute);
-  let open=true,reason="";
+  const dayNames=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const closedDays=(hours||[]).filter(x=>x.is_closed).map(x=>Number(x.day_of_week)).sort((a,b)=>a-b);
+  const closedNames=closedDays.map(d=>dayNames[d]);
+  const closedLabel=closedNames.length===1?`Closed every ${closedNames[0]}`:closedNames.length===2?`Closed every ${closedNames[0]} and ${closedNames[1]}`:closedNames.length>2?`Closed every ${closedNames.slice(0,-1).join(", ")} and ${closedNames[closedNames.length-1]}`:"";
+  const heroClosed=$("weeklyClosedHero"),footerClosed=$("weeklyClosedFooter"),cardTitle=$("weeklyClosedCardTitle"),cardText=$("weeklyClosedCardText");
+  if(heroClosed&&closedLabel)heroClosed.textContent=closedLabel;
+  if(footerClosed&&closedLabel)footerClosed.textContent=closedLabel;
+  if(cardTitle&&closedNames.length){cardTitle.textContent=closedNames.length===1?`Closed on ${closedNames[0]}s`:`Closed on ${closedNames.join(" / ")}`;}
+  if(cardText&&closedNames.length)cardText.textContent="Open on all other days: 9:00 AM – 10:30 PM";
+  let open=true,reason="",statusText="Online ordering will resume soon.";
   const active=(closures||[]).some(c=>now>=new Date(c.starts_at)&&now<new Date(c.ends_at));
+  const todayHours=(hours||[]).find(x=>Number(x.day_of_week)===day);
   if(active){open=false;reason=settings?.closed_message||"We’re Temporarily Closed";}
-  else if(settings?.manual_status==="closed"){open=false;reason=settings.closed_message;}
+  else if(settings?.manual_status==="closed"){open=false;reason=settings.closed_message||"We’re Temporarily Closed";}
   else if(settings?.manual_status==="open"){open=true;}
   else{
-   const h=(hours||[]).find(x=>x.day_of_week===day);
+   const h=todayHours;
    open=!!h&&!h.is_closed&&mins>=Number((h.opens_at||"00:00").slice(0,2))*60+Number((h.opens_at||"00:00").slice(3,5))&&mins<Number((h.closes_at||"00:00").slice(0,2))*60+Number((h.closes_at||"00:00").slice(3,5));
-   if(!open)reason=settings?.closed_message||"We’re Temporarily Closed";
+   if(!open&&h?.is_closed){
+    reason=`We’re closed on ${dayNames[day]}`;
+    let nextOpenDay=null;
+    for(let offset=1;offset<=7;offset++){
+     const candidate=(day+offset)%7;
+     const candidateHours=(hours||[]).find(x=>Number(x.day_of_week)===candidate);
+     if(candidateHours&&!candidateHours.is_closed){nextOpenDay=candidate;break;}
+    }
+    statusText=nextOpenDay===null?"Online ordering will resume when we reopen.":`It’s our weekly day off. We’ll be back open ${dayNames[nextOpenDay]}, and you can order again then.`;
+   }else if(!open){reason=settings?.closed_message||"We’re Temporarily Closed";}
   }
   vtShopOpen=open;
-  const banner=$("shopStatusBanner");if(banner){banner.classList.toggle("visible",!open);$("shopStatusTitle").textContent=reason||"We’re Temporarily Closed";$("shopStatusText").textContent="Online ordering will resume soon.";}
+  const banner=$("shopStatusBanner");if(banner){banner.classList.toggle("visible",!open);$("shopStatusTitle").textContent=reason||"We’re Temporarily Closed";$("shopStatusText").textContent=statusText;}
   if(adminRoute&&$("admShopState"))$("admShopState").textContent=open?"OPEN":"CLOSED";
   if(!adminRoute){
    document.querySelectorAll('#menuGrid button, .quick-add-btn').forEach(b=>{if(!open){b.disabled=true;b.dataset.shopClosed="1";b.style.opacity=".45";b.title="Online ordering is temporarily closed";}else if(b.dataset.shopClosed){b.disabled=false;delete b.dataset.shopClosed;b.style.opacity="";b.title="";}});
